@@ -14,6 +14,8 @@ import MyFavorites from "../pages/MyFavorites";
 import MyAccount from "../pages/MyAccount";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
+import Scientists from "../pages/Scientists";
+import Feedbacks from "../pages/Feedbacks";
 
 const AppRouter = () => {
   return (
@@ -23,6 +25,7 @@ const AppRouter = () => {
         <Route path="/" element={<Main />} />
         <Route path="/about" element={<About />} />
         <Route path="/cartoons" element={<Cartoons />} />
+        <Route path="/scientists" element={<Scientists />} />
         <Route path="/documentaries" element={<Documentaries />} />
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/modern-arabic" element={<ModernArabic />} />
@@ -33,6 +36,7 @@ const AppRouter = () => {
         <Route path="/account" element={<MyAccount />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/feedbacks" element={<Feedbacks />} />
       </Routes>
     </BrowserRouter>
   );

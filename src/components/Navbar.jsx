@@ -39,6 +39,7 @@ const pages = [
   { title: "Haberler", icon: "", url: "/news" },
   { title: "Şiirler", icon: "", url: "/poetries" },
   { title: "Hakkımızda", icon: "", url: "/about" },
+  { title: "Geri Bildirim", icon: "", url: "/feedbacks" },
 ];
 
 function NavBar() {
