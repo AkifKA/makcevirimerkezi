@@ -78,14 +78,7 @@ function NavBar() {
             fontSize="large"
             sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}
           />
-          <AppBar position="static">
-            <Container maxWidth="xl">
-              <Toolbar disableGutters>
-                <TranslateIcon
-                  fontSize="large"
-                  sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}
-                />
-                {/* <Stack
+          {/* <Stack
          justifyContent={"center"}
          alignItems={"center"}
          direction={"column"}
@@ -121,153 +114,148 @@ function NavBar() {
            Çeviri Merkezi
          </Typography>
        </Stack> */}
-                <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-                  <IconButton
-                    size="large"
-                    aria-label="account of current user"
-                    aria-controls="menu-appbar"
-                    aria-haspopup="true"
-                    onClick={handleOpenNavMenu}
-                    color="inherit"
-                  >
-                    <MenuIcon />
-                  </IconButton>
-                  <Menu
-                    id="menu-appbar"
-                    anchorEl={anchorElNav}
-                    anchorOrigin={{
-                      vertical: "bottom",
-                      horizontal: "left",
-                    }}
-                    keepMounted
-                    transformOrigin={{
-                      vertical: "top",
-                      horizontal: "left",
-                    }}
-                    open={Boolean(anchorElNav)}
-                    onClose={handleCloseNavMenu}
+          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+            <IconButton
+              size="medium"
+              aria-label="account of current user"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleOpenNavMenu}
+              color="inherit"
+            >
+              <MenuIcon />
+            </IconButton>
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorElNav}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "left",
+              }}
+              open={Boolean(anchorElNav)}
+              onClose={handleCloseNavMenu}
+              sx={{
+                display: { xs: "block", md: "none" },
+              }}
+            >
+              {pages.map(({ title, icon, url }) => (
+                <MenuItem key={title} onClick={() => navigate(url)}>
+                  <Typography
+                    textAlign="center"
                     sx={{
-                      display: { xs: "block", md: "none" },
+                      textDecoration: location.pathname === url && "underline",
                     }}
                   >
-                    {pages.map(({ title, icon, url }) => (
-                      <MenuItem key={title} onClick={() => navigate(url)}>
-                        <Typography textAlign="center">{title}</Typography>
-                      </MenuItem>
-                    ))}
-                  </Menu>
-                </Box>
-                <TranslateIcon
-                  sx={{ display: { xs: "flex", md: "none" }, mr: 1 }}
-                />
+                    {title}
+                  </Typography>
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box>
+          <TranslateIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
+          <Typography
+            variant="h6"
+            noWrap
+            component="a"
+            href="/"
+            sx={{
+              mr: 2,
+              display: { xs: "flex", md: "none" },
+              flexGrow: 1,
+              fontFamily: "monospace",
+              fontWeight: 700,
+
+              color: "inherit",
+              textDecoration: "none",
+            }}
+          >
+            MAK Çeviri Merkezi
+          </Typography>
+          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
+            {pages.map(({ title, url, icon }) => (
+              <Button
+                variant="outlined"
+                key={title}
+                onClick={() => navigate(url)}
+                selected="true"
+                sx={{
+                  my: 2,
+                  color: "white",
+                  display: "block",
+                  textTransform: "capitalize",
+                  textDecoration: location.pathname === url && "underline",
+                }}
+              >
+                {title}
+              </Button>
+            ))}
+          </Box>
+
+          <Box sx={{ flexGrow: 0 }}>
+            <Tooltip title="Ayarları Aç">
+              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+              </IconButton>
+            </Tooltip>
+            <Menu
+              sx={{ mt: "45px" }}
+              id="menu-appbar"
+              anchorEl={anchorElUser}
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              open={Boolean(anchorElUser)}
+              onClose={handleCloseUserMenu}
+            >
+              <MenuItem onClick={() => navigate("/my-favorites")}>
                 <Typography
-                  variant="h5"
-                  noWrap
-                  component="a"
-                  href="/"
                   sx={{
-                    mr: 2,
-                    display: { xs: "flex", md: "none" },
-                    flexGrow: 1,
-                    fontFamily: "monospace",
-                    fontWeight: 700,
-                    letterSpacing: ".3rem",
-                    color: "inherit",
-                    textDecoration: "none",
+                    textAlign: "center",
+                    textDecoration:
+                      location.pathname === "/my-favorites" && "underline",
                   }}
                 >
-                  MAK Çeviri Merkezi
+                  Beğenlerim
                 </Typography>
-                <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-                  {pages.map(({ title, url, icon }) => (
-                    <Button
-                      variant="outlined"
-                      key={title}
-                      onClick={() => navigate(url)}
-                      selected="true"
-                      sx={{
-                        my: 2,
-                        color: "white",
-                        display: "block",
-                        textTransform: "capitalize",
-                        textDecoration:
-                          location.pathname === url && "underline",
-                      }}
-                    >
-                      {title}
-                    </Button>
-                  ))}
-                </Box>
-
-                <Box sx={{ flexGrow: 0 }}>
-                  <Tooltip title="Ayarları Aç">
-                    <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                      <Avatar
-                        alt="Remy Sharp"
-                        src="/static/images/avatar/2.jpg"
-                      />
-                    </IconButton>
-                  </Tooltip>
-                  <Menu
-                    sx={{ mt: "45px" }}
-                    id="menu-appbar"
-                    anchorEl={anchorElUser}
-                    anchorOrigin={{
-                      vertical: "top",
-                      horizontal: "right",
-                    }}
-                    keepMounted
-                    transformOrigin={{
-                      vertical: "top",
-                      horizontal: "right",
-                    }}
-                    open={Boolean(anchorElUser)}
-                    onClose={handleCloseUserMenu}
-                  >
-                    <MenuItem onClick={() => navigate("/my-favorites")}>
-                      <Typography
-                        sx={{
-                          textAlign: "center",
-                          textDecoration:
-                            location.pathname === "/my-favorites" &&
-                            "underline",
-                        }}
-                      >
-                        Beğenlerim
-                      </Typography>
-                    </MenuItem>
-                    <MenuItem onClick={() => navigate("/register")}>
-                      <Typography
-                        sx={{
-                          textAlign: "center",
-                          textDecoration:
-                            location.pathname === "/register" && "underline",
-                        }}
-                      >
-                        Kayıt
-                      </Typography>
-                    </MenuItem>
-                    <MenuItem onClick={() => navigate("/login")}>
-                      <Typography
-                        sx={{
-                          textAlign: "center",
-                          textDecoration:
-                            location.pathname === "/login" && "underline",
-                        }}
-                      >
-                        Giriş
-                      </Typography>
-                    </MenuItem>
-                    <MenuItem onClick={logout}>
-                      <Typography sx={{ textAlign: "center" }}>
-                        Çıkış
-                      </Typography>
-                    </MenuItem>
-                  </Menu>
-                </Box>
-              </Toolbar>
-            </Container>
-          </AppBar>
+              </MenuItem>
+              <MenuItem onClick={() => navigate("/register")}>
+                <Typography
+                  sx={{
+                    textAlign: "center",
+                    textDecoration:
+                      location.pathname === "/register" && "underline",
+                  }}
+                >
+                  Kayıt
+                </Typography>
+              </MenuItem>
+              <MenuItem onClick={() => navigate("/login")}>
+                <Typography
+                  sx={{
+                    textAlign: "center",
+                    textDecoration:
+                      location.pathname === "/login" && "underline",
+                  }}
+                >
+                  Giriş
+                </Typography>
+              </MenuItem>
+              <MenuItem onClick={logout}>
+                <Typography sx={{ textAlign: "center" }}>Çıkış</Typography>
+              </MenuItem>
+            </Menu>
+          </Box>
         </Toolbar>
       </Container>
     </AppBar>
