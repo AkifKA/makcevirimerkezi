@@ -11,10 +11,40 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import AdbIcon from "@mui/icons-material/Adb";
+import TranslateIcon from "@mui/icons-material/Translate";
+import { Link } from "@mui/icons-material";
+import { useLocation, useNavigate } from "react-router-dom";
+// import { Stack } from "@mui/material";
 
-const pages = ["Products", "Pricing", "Blog"];
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
+// const pages = [
+//   "Ana Sayfa",
+//   "Çizgifilmler",
+//   "Alimler",
+//   "Modern Arapça",
+//   "Müzikler",
+//   "Haberler",
+//   "Şiirler",
+//   "Belgeseleller",
+// ];
+
+// const settings = ["Hesabım", "Beğenilerim", "Çıkış"];
+
+const pages = [
+  { title: "Ana Sayfa", icon: "", url: "/" },
+  { title: "Çizgifilmler", icon: "", url: "/cartoons" },
+  { title: "Alimler", icon: "", url: "/scientists" },
+  { title: "Modern Arapça", icon: "", url: "/modern-arabic" },
+  { title: "Müzikler", icon: "", url: "/musics" },
+  { title: "Haberler", icon: "", url: "/news" },
+  { title: "Şiirler", icon: "", url: "/poetries" },
+  { title: "Hakkımızda", icon: "", url: "/about" },
+];
+
+const settings = [
+  { title: "Hesabım", icon: "", url: "/account" },
+  { title: "Beğenilerim", icon: "", url: "/myFavorites" },
+  { title: "Giriş", icon: "", url: "/login" },
+];
 
 function NavBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -35,29 +65,53 @@ function NavBar() {
     setAnchorElUser(null);
   };
 
+  const navigate = useNavigate();
+
+  const location = useLocation();
   return (
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            href="/"
-            sx={{
-              mr: 2,
-              display: { xs: "none", md: "flex" },
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
-            }}
+          <TranslateIcon
+            fontSize="large"
+            sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}
+          />
+          {/* <Stack
+            justifyContent={"center"}
+            alignItems={"center"}
+            direction={"column"}
           >
-            LOGO
-          </Typography>
-
+            <Typography
+              variant="h6"
+              component="a"
+              href="/"
+              sx={{
+                display: { xs: "none", md: "flex" },
+                fontFamily: "monospace",
+                fontWeight: 700,
+                color: "inherit",
+                textDecoration: "none",
+                fontSize: "1.5rem",
+              }}
+            >
+              MAK
+            </Typography>
+            <Typography
+              variant="h6"
+              component="a"
+              href="/"
+              sx={{
+                display: { xs: "none", md: "flex" },
+                fontFamily: "monospace",
+                fontWeight: 700,
+                color: "inherit",
+                textDecoration: "none",
+                fontSize: "1.3rem",
+              }}
+            >
+              Çeviri Merkezi
+            </Typography>
+          </Stack> */}
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
@@ -87,14 +141,14 @@ function NavBar() {
                 display: { xs: "block", md: "none" },
               }}
             >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
+              {pages.map(({ title, icon, url }) => (
+                <MenuItem key={title} onClick={() => navigate(url)}>
+                  <Typography textAlign="center">{title}</Typography>
                 </MenuItem>
               ))}
             </Menu>
           </Box>
-          <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
+          <TranslateIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
           <Typography
             variant="h5"
             noWrap
@@ -111,22 +165,30 @@ function NavBar() {
               textDecoration: "none",
             }}
           >
-            LOGO
+            MAK Çeviri Merkezi
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            {pages.map((page) => (
+            {pages.map(({ title, url, icon }) => (
               <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: "white", display: "block" }}
+                variant="outlined"
+                key={title}
+                onClick={() => navigate(url)}
+                selected="true"
+                sx={{
+                  my: 2,
+                  color: "white",
+                  display: "block",
+                  textTransform: "capitalize",
+                  textDecoration: location.pathname === url && "underline",
+                }}
               >
-                {page}
+                {title}
               </Button>
             ))}
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
+            <Tooltip title="Ayarları Aç">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
               </IconButton>
@@ -147,11 +209,42 @@ function NavBar() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
+              <MenuItem onClick={() => navigate("/my-favorites")}>
+                <Typography
+                  sx={{
+                    textAlign: "center",
+                    textDecoration:
+                      location.pathname === "/my-favorites" && "underline",
+                  }}
+                >
+                  Beğenlerim
+                </Typography>
+              </MenuItem>
+              <MenuItem onClick={() => navigate("/register")}>
+                <Typography
+                  sx={{
+                    textAlign: "center",
+                    textDecoration:
+                      location.pathname === "/register" && "underline",
+                  }}
+                >
+                  Kayıt
+                </Typography>
+              </MenuItem>
+              <MenuItem onClick={() => navigate("/login")}>
+                <Typography
+                  sx={{
+                    textAlign: "center",
+                    textDecoration:
+                      location.pathname === "/login" && "underline",
+                  }}
+                >
+                  Giriş
+                </Typography>
+              </MenuItem>
+              <MenuItem onClick={{}}>
+                <Typography sx={{ textAlign: "center" }}>Çıkış</Typography>
+              </MenuItem>
             </Menu>
           </Box>
         </Toolbar>
