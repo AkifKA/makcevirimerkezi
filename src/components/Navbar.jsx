@@ -166,6 +166,7 @@ function NavBar() {
               flexGrow: 1,
               fontFamily: "monospace",
               fontWeight: 700,
+              fontSize: "1.2rem",
 
               color: "inherit",
               textDecoration: "none",
