@@ -14,7 +14,6 @@ import MenuItem from "@mui/material/MenuItem";
 import TranslateIcon from "@mui/icons-material/Translate";
 
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
 
 // import { Stack } from "@mui/material";
 
@@ -43,7 +42,6 @@ const pages = [
 ];
 
 function NavBar() {
-  const [bok, setBok] = useState(false);
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -66,9 +64,7 @@ function NavBar() {
 
   const location = useLocation();
 
-  const logout = () => {
-    setBok(true);
-  };
+  const logout = () => {};
 
   return (
     <AppBar position="static">
