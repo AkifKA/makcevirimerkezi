@@ -12,23 +12,9 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import TranslateIcon from "@mui/icons-material/Translate";
-
 import { useLocation, useNavigate } from "react-router-dom";
-
-// import { Stack } from "@mui/material";
-
-// const pages = [
-//   "Ana Sayfa",
-//   "Çizgifilmler",
-//   "Alimler",
-//   "Modern Arapça",
-//   "Müzikler",
-//   "Haberler",
-//   "Şiirler",
-//   "Belgeseleller",
-// ];
-
-// const settings = ["Hesabım", "Beğenilerim", "Çıkış"];
+import { AuthContext } from "../context/AuthContext";
+import avatar from "../assets/avatar.png";
 
 const pages = [
   { title: "Ana Sayfa", icon: "", url: "/" },
@@ -45,6 +31,8 @@ const pages = [
 function NavBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+
+  const { currentUser, logOut } = React.useContext(AuthContext);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -64,8 +52,6 @@ function NavBar() {
   const navigate = useNavigate();
 
   const location = useLocation();
-
-  const logout = () => {};
 
   return (
     <AppBar position="static">
@@ -166,7 +152,7 @@ function NavBar() {
               flexGrow: 1,
               fontFamily: "monospace",
               fontWeight: 700,
-              fontSize: "1.2rem",
+              fontSize: "1.1rem",
 
               color: "inherit",
               textDecoration: "none",
@@ -194,9 +180,9 @@ function NavBar() {
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Ayarları Aç">
+            <Tooltip title={currentUser && currentUser.displayName}>
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                <Avatar alt="Remy Sharp" src={currentUser.photoURL || avatar} />
               </IconButton>
             </Tooltip>
             <Menu
@@ -223,34 +209,39 @@ function NavBar() {
                       location.pathname === "/my-favorites" && "underline",
                   }}
                 >
-                  Beğenlerim
+                  Beğenilerim
                 </Typography>
               </MenuItem>
-              <MenuItem onClick={() => navigate("/register")}>
-                <Typography
-                  sx={{
-                    textAlign: "center",
-                    textDecoration:
-                      location.pathname === "/register" && "underline",
-                  }}
-                >
-                  Kayıt
-                </Typography>
-              </MenuItem>
-              <MenuItem onClick={() => navigate("/login")}>
-                <Typography
-                  sx={{
-                    textAlign: "center",
-                    textDecoration:
-                      location.pathname === "/login" && "underline",
-                  }}
-                >
-                  Giriş
-                </Typography>
-              </MenuItem>
-              <MenuItem onClick={logout}>
-                <Typography sx={{ textAlign: "center" }}>Çıkış</Typography>
-              </MenuItem>
+              {currentUser ? (
+                <MenuItem onClick={() => logOut()}>
+                  <Typography sx={{ textAlign: "center" }}>Çıkış</Typography>
+                </MenuItem>
+              ) : (
+                <>
+                  <MenuItem onClick={() => navigate("/register")}>
+                    <Typography
+                      sx={{
+                        textAlign: "center",
+                        textDecoration:
+                          location.pathname === "/register" && "underline",
+                      }}
+                    >
+                      Kayıt
+                    </Typography>
+                  </MenuItem>
+                  <MenuItem onClick={() => navigate("/login")}>
+                    <Typography
+                      sx={{
+                        textAlign: "center",
+                        textDecoration:
+                          location.pathname === "/login" && "underline",
+                      }}
+                    >
+                      Giriş
+                    </Typography>
+                  </MenuItem>
+                </>
+              )}
             </Menu>
           </Box>
         </Toolbar>
