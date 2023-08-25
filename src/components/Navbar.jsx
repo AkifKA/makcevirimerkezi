@@ -180,7 +180,6 @@ function NavBar() {
                 variant="outlined"
                 key={title}
                 onClick={() => navigate(url)}
-                selected="true"
                 sx={{
                   my: 2,
                   color: "white",
