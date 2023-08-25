@@ -15,6 +15,7 @@ import TranslateIcon from "@mui/icons-material/Translate";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import avatar from "../assets/avatar.png";
+import { Grid } from "@mui/material";
 
 const pages = [
   { title: "Ana Sayfa", icon: "", url: "/" },
@@ -160,6 +161,18 @@ function NavBar() {
           >
             MAK Çeviri Merkezi
           </Typography>
+          {currentUser && (
+            <Typography
+              sx={{
+                display: { xs: "flex", md: "none" },
+                fontWeight: 700,
+                fontSize: ".9rem",
+                marginRight: ".3rem",
+              }}
+            >
+              {currentUser.displayName}
+            </Typography>
+          )}
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map(({ title, url, icon }) => (
               <Button
@@ -171,6 +184,7 @@ function NavBar() {
                   color: "white",
                   display: "block",
                   textTransform: "capitalize",
+                  fontSize: ".75rem",
                   textDecoration: location.pathname === url && "underline",
                 }}
               >
@@ -180,11 +194,31 @@ function NavBar() {
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title={currentUser && currentUser.displayName}>
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src={currentUser.photoURL || avatar} />
-              </IconButton>
-            </Tooltip>
+            <Grid container alignItems="center">
+              <Grid item>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    mr: 1,
+                    fontSize: ".7rem",
+                    display: { xs: "none", md: "block" },
+                  }}
+                >
+                  {currentUser.displayName}
+                </Typography>
+              </Grid>
+              <Grid item>
+                <Tooltip title="Ayarları Aç">
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <Avatar
+                      alt={currentUser.displayName}
+                      src={currentUser.photoURL || avatar}
+                    />
+                  </IconButton>
+                </Tooltip>
+              </Grid>
+            </Grid>
+
             <Menu
               sx={{ mt: "45px" }}
               id="menu-appbar"
@@ -212,36 +246,41 @@ function NavBar() {
                   Beğenilerim
                 </Typography>
               </MenuItem>
-              {currentUser ? (
-                <MenuItem onClick={() => logOut()}>
-                  <Typography sx={{ textAlign: "center" }}>Çıkış</Typography>
-                </MenuItem>
-              ) : (
-                <>
-                  <MenuItem onClick={() => navigate("/register")}>
-                    <Typography
-                      sx={{
-                        textAlign: "center",
-                        textDecoration:
-                          location.pathname === "/register" && "underline",
-                      }}
+              {currentUser
+                ? [
+                    <MenuItem key="logout" onClick={() => logOut()}>
+                      <Typography sx={{ textAlign: "center" }}>
+                        Çıkış
+                      </Typography>
+                    </MenuItem>,
+                  ]
+                : [
+                    <MenuItem
+                      key="register"
+                      onClick={() => navigate("/register")}
                     >
-                      Kayıt
-                    </Typography>
-                  </MenuItem>
-                  <MenuItem onClick={() => navigate("/login")}>
-                    <Typography
-                      sx={{
-                        textAlign: "center",
-                        textDecoration:
-                          location.pathname === "/login" && "underline",
-                      }}
-                    >
-                      Giriş
-                    </Typography>
-                  </MenuItem>
-                </>
-              )}
+                      <Typography
+                        sx={{
+                          textAlign: "center",
+                          textDecoration:
+                            location.pathname === "/register" && "underline",
+                        }}
+                      >
+                        Kayıt
+                      </Typography>
+                    </MenuItem>,
+                    <MenuItem key="login" onClick={() => navigate("/login")}>
+                      <Typography
+                        sx={{
+                          textAlign: "center",
+                          textDecoration:
+                            location.pathname === "/login" && "underline",
+                        }}
+                      >
+                        Giriş
+                      </Typography>
+                    </MenuItem>,
+                  ]}
             </Menu>
           </Box>
         </Toolbar>
