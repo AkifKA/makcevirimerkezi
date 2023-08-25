@@ -7,7 +7,7 @@ function App() {
   return (
     <>
       <AuthContextProvider>
-        <AppRouter />;
+        <AppRouter />
         <ToastContainer />
       </AuthContextProvider>
     </>
