@@ -16,6 +16,7 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Scientists from "../pages/Scientists";
 import Feedbacks from "../pages/Feedbacks";
+import Footer from "../components/Footer";
 
 const AppRouter = () => {
   return (
@@ -38,6 +39,7 @@ const AppRouter = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/feedbacks" element={<Feedbacks />} />
       </Routes>
+      <Footer />
     </BrowserRouter>
   );
 };
