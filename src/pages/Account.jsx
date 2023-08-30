@@ -5,23 +5,21 @@ import Avatar from "@mui/material/Avatar";
 import IconButton from "@mui/material/IconButton";
 import EditIcon from "@mui/icons-material/Edit";
 import TextField from "@mui/material/TextField";
-import Grid from "@mui/material/Grid";
 import Stack from "@mui/material/Stack";
 
 const Account = () => {
-  const { currentUser, uploadProfileImage, getProfileImageUrl } = useAuth();
+  const { currentUser, uploadProfileImage } = useAuth();
   const [profileImageUrl, setProfileImageUrl] = useState(null);
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     if (currentUser) {
-      // Profil resminin URL'sini al
-      getProfileImageUrl(currentUser.uid)
-        .then((url) => setProfileImageUrl(url))
-        .catch((error) =>
-          console.error("Error fetching profile image:", error)
-        );
+      if (currentUser.photoURL) {
+        // Eğer kullanıcının profil resmi varsa, o resmi kullan
+        setProfileImageUrl(currentUser.photoURL);
+      }
     }
   }, [currentUser]);
 
@@ -30,7 +28,6 @@ const Account = () => {
 
     if (file) {
       try {
-        // Profil resmini yükle
         const imageUrl = await uploadProfileImage(currentUser.uid, file);
         setProfileImageUrl(imageUrl);
       } catch (error) {
@@ -42,9 +39,13 @@ const Account = () => {
   return (
     <div>
       {currentUser && (
-        <Stack spacing={2}>
-          <Typography variant="h5" align="center" gutterBottom>
+        <Stack spacing={2} alignItems="center">
+          <Typography variant="h5" gutterBottom>
             Hesap Bilgilerim
+          </Typography>
+
+          <Typography variant="h6" gutterBottom>
+            Profil Resmim
           </Typography>
 
           <div
@@ -84,8 +85,9 @@ const Account = () => {
             <div
               style={{
                 position: "absolute",
-                top: 0,
-                right: 0,
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
                 display: isHovered ? "block" : "none",
               }}
             >
@@ -93,52 +95,10 @@ const Account = () => {
             </div>
           </div>
 
-          <Typography variant="h6">Adım:</Typography>
-          {isEditingName ? (
-            <TextField
-              defaultValue={currentUser.displayName}
-              variant="outlined"
-              fullWidth
-              onBlur={() => setIsEditingName(false)}
-            />
-          ) : (
-            <Typography>
-              {currentUser.displayName}
-              <IconButton
-                color="primary"
-                aria-label="edit name"
-                onClick={() => setIsEditingName(true)}
-              >
-                <EditIcon fontSize="small" />
-              </IconButton>
-            </Typography>
-          )}
-
-          <Typography variant="h6">Soyadım:</Typography>
-          {/* Burada Soyadım alanını ekleyebilirsiniz */}
-
-          <Typography variant="h6">Mail Adresim:</Typography>
-          {isEditingEmail ? (
-            <TextField
-              defaultValue={currentUser.email}
-              variant="outlined"
-              fullWidth
-              onBlur={() => setIsEditingEmail(false)}
-            />
-          ) : (
-            <Typography>
-              {currentUser.email}
-              <IconButton
-                color="primary"
-                aria-label="edit email"
-                onClick={() => setIsEditingEmail(true)}
-              >
-                <EditIcon fontSize="small" />
-              </IconButton>
-            </Typography>
-          )}
-
-          {/* Şifre düzenleme kısmını buraya ekleyebilirsiniz */}
+          <Typography variant="h6">Adım: {currentUser.displayName}</Typography>
+          <Typography variant="h6">
+            Mail Adresim: {currentUser.email}
+          </Typography>
         </Stack>
       )}
     </div>

@@ -2,17 +2,17 @@ import React, { useContext, useState, useEffect } from "react";
 import { auth, googleProvider } from "../auth/firebase";
 import {
   createUserWithEmailAndPassword,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
+  updateProfile,
   signInWithPopup,
   signOut,
   sendPasswordResetEmail,
-  updateProfile,
+  onAuthStateChanged,
+  signInWithEmailAndPassword, // Eklenen kısım
 } from "firebase/auth";
+
 import { toastErrorNotify, toastSuccessNotify } from "../helpers/ToastNotify";
 import { useNavigate } from "react-router-dom";
-// import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { getStorage, ref, getDownloadURL, uploadBytes } from "firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const AuthContext = React.createContext();
 
@@ -25,27 +25,22 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
-  const storage = getStorage(); // Firebase Storage instance'ını aldık
+  const storage = getStorage();
 
   async function signup(email, password, displayName, profileImage) {
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      const user = auth.currentUser;
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
 
       if (user) {
         await updateProfile(user, {
           displayName: displayName,
+          photoURL: profileImage,
         });
-
-        if (profileImage) {
-          const profileImageUrl = await uploadProfileImage(
-            user.uid,
-            profileImage
-          );
-          await updateProfile(user, {
-            photoURL: profileImageUrl,
-          });
-        }
 
         setCurrentUser(user);
       }
@@ -58,12 +53,30 @@ export function AuthProvider({ children }) {
     }
   }
 
+  async function loginWithGoogle() {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      if (user) {
+        setCurrentUser(user);
+      }
+
+      toastSuccessNotify("Başarıyla giriş yapıldı.");
+      navigate(-1);
+    } catch (error) {
+      console.error("Error logging in with Google:", error.message);
+      toastErrorNotify("Giriş başarısız:", error.message);
+    }
+  }
+
   async function login(email, password) {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      console.log("Login successful.");
+      setCurrentUser(auth.currentUser);
+
       toastSuccessNotify("Başarıyla giriş yapıldı.");
-      navigate(-1);
+      navigate("/");
     } catch (error) {
       console.error("Error logging in:", error.message);
       toastErrorNotify("Giriş başarısız:", error.message);
@@ -83,17 +96,6 @@ export function AuthProvider({ children }) {
     }
   }
 
-  async function loginWithGoogle() {
-    try {
-      await signInWithPopup(auth, googleProvider);
-      toastSuccessNotify("Başarıyla giriş yapıldı.");
-      navigate(-1);
-    } catch (error) {
-      console.error("Error logging in with Google:", error.message);
-      toastErrorNotify("Giriş başarısız:", error.message);
-    }
-  }
-
   async function forgetPassword(email) {
     try {
       await sendPasswordResetEmail(auth, email);
@@ -106,18 +108,11 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // Profil resmini yükleme fonksiyonu
   const uploadProfileImage = async (userId, file) => {
     const storageRef = ref(storage, `profile-images/${userId}`);
     await uploadBytes(storageRef, file);
     return getDownloadURL(storageRef);
   };
-
-  async function getProfileImageUrl(userId) {
-    const storageRef = ref(storage, `profile-images/${userId}`);
-    const downloadURL = await getDownloadURL(storageRef);
-    return downloadURL;
-  }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -137,12 +132,11 @@ export function AuthProvider({ children }) {
     currentUser,
     isAdmin,
     signup,
-    login,
-    logout,
     loginWithGoogle,
+    login, // Eklenen kısım
+    logout,
     forgetPassword,
     uploadProfileImage,
-    getProfileImageUrl,
   };
 
   return (
