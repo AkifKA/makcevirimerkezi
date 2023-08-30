@@ -46,13 +46,39 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // async function loginWithGoogle() {
+  //   try {
+  //     const result = await signInWithPopup(auth, googleProvider);
+  //     const user = result.user;
+
+  //     if (user) {
+  //       setCurrentUser(user);
+  //     }
+
+  //     // ... diğer işlemler
+  //   } catch (error) {
+  //     // ... hata işlemleri
+  //   }
+  // }
   async function loginWithGoogle() {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
       if (user) {
-        setCurrentUser(user);
+        const googleProfileImage = user.photoURL; // Google hesabındaki profil resmi
+        const imageUrl = googleProfileImage || currentUser?.photoURL; // Eğer Google hesabında resim yoksa, kullanıcının mevcut resmini kullan
+
+        await updateProfile(auth.currentUser, {
+          displayName: user.displayName,
+          photoURL: imageUrl,
+        });
+
+        setCurrentUser((prevUser) => ({
+          ...prevUser,
+          displayName: user.displayName,
+          photoURL: imageUrl,
+        }));
       }
 
       // ... diğer işlemler
