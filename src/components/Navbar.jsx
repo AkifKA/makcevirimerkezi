@@ -11,11 +11,11 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-// import TranslateIcon from "@mui/icons-material/Translate";
+
 import { useLocation, useNavigate } from "react-router-dom";
 import MyLogo from "../assets/logo4.png";
 
-import { Grid } from "@mui/material";
+import { Grid, Link } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
 
 const pages = [
@@ -60,6 +60,25 @@ function NavBar() {
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
+          <Link href="/" variant="a">
+            <Box
+              width={180}
+              height={70}
+              sx={{
+                display: { xs: "none", md: "flex" },
+                mr: 1,
+              }}
+            >
+              {" "}
+              <img
+                width={"100%"}
+                height={"100%"}
+                src={MyLogo}
+                alt="My Custom Logo"
+                variant={"a"}
+              />
+            </Box>
+          </Link>
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="medium"
@@ -103,38 +122,24 @@ function NavBar() {
               ))}
             </Menu>
           </Box>
-          <img
-            src={MyLogo}
-            alt="My Custom Logo"
-            width={100} // Adjust the width according to your design
-            height={50} // Adjust the height according to your design
-            sx={{ display: { xs: "flex", md: "none" }, mr: 1 }}
-          />
-          {/* <TranslateIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} /> */}
-          {/* <Typography
-            variant="h6"
-            noWrap
-            component="a"
+          <Link
             href="/"
+            variant="a"
             sx={{
               mr: 2,
               display: { xs: "flex", md: "none" },
               flexGrow: 1,
-              fontFamily: "sans-serif",
-              fontSize: ".6rem",
-
-              color: "inherit",
-              textDecoration: "none",
             }}
           >
-            Arapça Türkçe İçeriklwe
-          </Typography> */}
+            <img width={180} height={70} src={MyLogo} alt="My Custom Logo" />
+          </Link>
+
           {currentUser && (
             <Typography
               sx={{
                 display: { xs: "flex", md: "none" },
                 fontWeight: 700,
-                fontSize: ".9rem",
+                fontSize: ".5rem",
                 marginRight: ".3rem",
               }}
             >
