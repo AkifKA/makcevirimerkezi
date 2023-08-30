@@ -21,14 +21,13 @@ function AdminPanel() {
     selectedCategoryInfo,
     handleSelectedCategoryChange,
   } = useVideo();
-  const { isAdmin } = useAuth();
 
   const [category, setCategory] = useState("");
   const [newCategory, setNewCategory] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
-
+  const { isAdmin } = useAuth();
   const handleUpload = () => {
     const newVideo = {
       category,
@@ -49,7 +48,11 @@ function AdminPanel() {
   };
 
   if (!isAdmin) {
-    return null; // Admin değilse paneli gösterme
+    return (
+      <Typography textAlign={"center"} variant="h3" mt={3}>
+        Bu sayfaya yalnızca yöneticiler erişebilir...
+      </Typography>
+    );
   }
 
   return (

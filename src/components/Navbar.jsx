@@ -25,7 +25,7 @@ const pages = [
   { title: "Modern Arapça", icon: "", url: "/modern-arabic" },
   { title: "Müzikler", icon: "", url: "/musics" },
   { title: "Haberler", icon: "", url: "/news" },
-  { title: "Şiirler", icon: "", url: "/poetries" },
+  { title: "Şiirler", icon: "", url: "/poems" },
   { title: "Hakkımızda", icon: "", url: "/about" },
   { title: "Geri Bildirim", icon: "", url: "/feedbacks" },
 ];
@@ -34,8 +34,7 @@ function NavBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
-  const { currentUser, logout } = useAuth();
-  console.log("user", currentUser);
+  const { isAdmin, currentUser, logout } = useAuth();
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -210,19 +209,24 @@ function NavBar() {
             >
               {currentUser
                 ? [
-                    <MenuItem onClick={() => navigate("/my-account")}>
+                    <MenuItem
+                      key={"account"}
+                      onClick={() => navigate("/my-account")}
+                    >
                       <Typography
                         sx={{
                           textAlign: "center",
                           textDecoration:
-                            location.pathname === "/my-favorites" &&
-                            "underline",
+                            location.pathname === "/my-account" && "underline",
                         }}
                       >
                         Hesap Bilgilerim
                       </Typography>
                     </MenuItem>,
-                    <MenuItem onClick={() => navigate("/my-favorites")}>
+                    <MenuItem
+                      key={"favorites"}
+                      onClick={() => navigate("/my-favorites")}
+                    >
                       <Typography
                         sx={{
                           textAlign: "center",
@@ -267,6 +271,22 @@ function NavBar() {
                       </Typography>
                     </MenuItem>,
                   ]}
+              {isAdmin && (
+                <MenuItem
+                  key="admin-panel"
+                  onClick={() => navigate("/admin-panel")}
+                >
+                  <Typography
+                    sx={{
+                      textAlign: "center",
+                      textDecoration:
+                        location.pathname === "/admin-panel" && "underline",
+                    }}
+                  >
+                    Yönetici Paneli
+                  </Typography>
+                </MenuItem>
+              )}
             </Menu>
           </Box>
         </Toolbar>

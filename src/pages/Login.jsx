@@ -49,12 +49,7 @@ export default function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const { email, password } = formData;
-
-    try {
-      await login(email, password);
-    } catch (error) {
-      console.log("Login error:", error);
-    }
+    login(email, password);
   };
 
   const validateEmail = (email) => {
