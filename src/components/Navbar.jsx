@@ -13,9 +13,9 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import TranslateIcon from "@mui/icons-material/Translate";
 import { useLocation, useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
-import avatar from "../assets/avatar.png";
+
 import { Grid } from "@mui/material";
+import { useAuth } from "../context/AuthContext";
 
 const pages = [
   { title: "Ana Sayfa", icon: "", url: "/" },
@@ -33,7 +33,8 @@ function NavBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
-  const { currentUser, logOut } = React.useContext(AuthContext);
+  const { currentUser, logout } = useAuth();
+  console.log("user", currentUser);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -170,7 +171,7 @@ function NavBar() {
                 marginRight: ".3rem",
               }}
             >
-              {currentUser.displayName}
+              {currentUser?.displayName}
             </Typography>
           )}
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
@@ -204,15 +205,15 @@ function NavBar() {
                     display: { xs: "none", md: "block" },
                   }}
                 >
-                  {currentUser.displayName}
+                  {currentUser?.displayName}
                 </Typography>
               </Grid>
               <Grid item>
                 <Tooltip title="Ayarları Aç">
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                     <Avatar
-                      alt={currentUser.displayName}
-                      src={currentUser.photoURL || avatar}
+                      alt={currentUser?.displayName}
+                      src={currentUser?.photoURL || Avatar}
                     />
                   </IconButton>
                 </Tooltip>
@@ -235,20 +236,33 @@ function NavBar() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              <MenuItem onClick={() => navigate("/my-favorites")}>
-                <Typography
-                  sx={{
-                    textAlign: "center",
-                    textDecoration:
-                      location.pathname === "/my-favorites" && "underline",
-                  }}
-                >
-                  Beğenilerim
-                </Typography>
-              </MenuItem>
               {currentUser
                 ? [
-                    <MenuItem key="logout" onClick={() => logOut()}>
+                    <MenuItem onClick={() => navigate("/my-account")}>
+                      <Typography
+                        sx={{
+                          textAlign: "center",
+                          textDecoration:
+                            location.pathname === "/my-favorites" &&
+                            "underline",
+                        }}
+                      >
+                        Hesap Bilgilerim
+                      </Typography>
+                    </MenuItem>,
+                    <MenuItem onClick={() => navigate("/my-favorites")}>
+                      <Typography
+                        sx={{
+                          textAlign: "center",
+                          textDecoration:
+                            location.pathname === "/my-favorites" &&
+                            "underline",
+                        }}
+                      >
+                        Beğenilerim
+                      </Typography>
+                    </MenuItem>,
+                    <MenuItem key="logout" onClick={() => logout()}>
                       <Typography sx={{ textAlign: "center" }}>
                         Çıkış
                       </Typography>

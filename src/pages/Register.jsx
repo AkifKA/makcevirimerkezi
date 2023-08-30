@@ -3,46 +3,134 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-// import FormControlLabel from "@mui/material/FormControlLabel";
-// import Checkbox from "@mui/material/Checkbox";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import PersonAddSharpIcon from "@mui/icons-material/PersonAddSharp";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { AuthContext } from "../context/AuthContext";
-import GoogleIcon from "@mui/icons-material/Google";
-
-// function Copyright(props) {
-//   return (
-//     <Typography
-//       variant="body2"
-//       color="text.secondary"
-//       align="center"
-//       {...props}
-//     >
-//       {"Copyright © "}
-//       <Link color="inherit" href="https://mui.com/">
-//         Your Website
-//       </Link>{" "}
-//       {new Date().getFullYear()}
-//       {"."}
-//     </Typography>
-//   );
-// }
-
-// TODO remove, this demo shouldn't need to reset the theme.
+import { FcGoogle } from "react-icons/fc";
+import { useAuth } from "../context/AuthContext";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const defaultTheme = createTheme();
 
-export default function Login() {
-  const { createUser, signUpProvider } = React.useContext(AuthContext);
-  const handleSubmit = (event) => {
+export default function Register() {
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+  const { signup, loginWithGoogle } = useAuth();
+  const [formData, setFormData] = React.useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [errors, setErrors] = React.useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+
+    // Check validations
+    const validationErrors = validateInputs(name, value);
+    setErrors({
+      ...errors,
+      [name]: validationErrors[name],
+    });
+  };
+
+  const validateInputs = (name, value) => {
+    const newErrors = { ...errors };
+
+    switch (name) {
+      case "firstName":
+        newErrors.firstName = value.trim() === "" ? "İsim gereklidir." : "";
+        break;
+      case "lastName":
+        newErrors.lastName = value.trim() === "" ? "Soy isim gereklidir." : "";
+        break;
+      case "email":
+        newErrors.email = !isValidEmail(value)
+          ? "Geçerli bir email girin."
+          : "";
+        break;
+      case "password":
+        newErrors.password = validatePassword(value);
+        break;
+      case "confirmPassword":
+        newErrors.confirmPassword =
+          value !== formData.password ? "Şifreler uyuşmuyor." : "";
+        break;
+      default:
+        break;
+    }
+
+    return newErrors;
+  };
+
+  const isValidEmail = (email) => {
+    // Email validation regex with Turkish characters
+    const emailRegex = /^[A-Za-z0-9+_.-]+@(.+\.)*[A-Za-z0-9-]+\.[A-Za-z]{2,}$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password) => {
+    if (password.length < 8) {
+      return "Şifre en az 8 karakter olmalıdır.";
+    }
+    // Check if password contains at least one special character
+    const specialCharRegex = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/;
+    if (!specialCharRegex.test(password)) {
+      return "Şifre en az bir özel karakter içermelidir.";
+    }
+    return "";
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const displayName = `${data.get("firstName")} ${data.get("lastName")}`;
-    createUser(data.get("email"), data.get("password"), displayName);
+
+    // Check validations for all fields
+    const newErrors = validateInputs("firstName", formData.firstName);
+    newErrors.lastName = validateInputs("lastName", formData.lastName).lastName;
+    newErrors.email = validateInputs("email", formData.email).email;
+    newErrors.password = validateInputs("password", formData.password).password;
+    newErrors.confirmPassword = validateInputs(
+      "confirmPassword",
+      formData.confirmPassword
+    ).confirmPassword;
+
+    // If there are errors, set them and return
+    if (
+      newErrors.firstName ||
+      newErrors.lastName ||
+      newErrors.email ||
+      newErrors.password ||
+      newErrors.confirmPassword
+    ) {
+      setErrors(newErrors);
+      return;
+    }
+
+    // Other form submission code
+    try {
+      const displayName = `${formData.firstName} ${formData.lastName}`;
+      await signup(formData.email, formData.password, displayName);
+    } catch (error) {
+      console.log("Signup error:", error);
+    }
   };
 
   return (
@@ -58,16 +146,16 @@ export default function Login() {
           }}
         >
           <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-            <LockOutlinedIcon />
+            <PersonAddSharpIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Kaydol
+            Kayıt Yap
           </Typography>
           <Box
             component="form"
             onSubmit={handleSubmit}
             noValidate
-            sx={{ mt: 1 }}
+            sx={{ mt: 3 }}
           >
             <TextField
               margin="normal"
@@ -78,6 +166,10 @@ export default function Login() {
               name="firstName"
               autoComplete="firstName"
               autoFocus
+              value={formData.firstName}
+              onChange={handleInputChange}
+              error={!!errors.firstName}
+              helperText={errors.firstName}
             />
             <TextField
               margin="normal"
@@ -87,7 +179,10 @@ export default function Login() {
               label="Soy İsim"
               name="lastName"
               autoComplete="lastName"
-              autoFocus
+              value={formData.lastName}
+              onChange={handleInputChange}
+              error={!!errors.lastName}
+              helperText={errors.lastName}
             />
             <TextField
               margin="normal"
@@ -97,7 +192,10 @@ export default function Login() {
               label="Email Adresi"
               name="email"
               autoComplete="email"
-              autoFocus
+              value={formData.email}
+              onChange={handleInputChange}
+              error={!!errors.email}
+              helperText={errors.email}
             />
             <TextField
               margin="normal"
@@ -105,32 +203,77 @@ export default function Login() {
               fullWidth
               name="password"
               label="Şifre"
-              type="password"
+              type={showPassword ? "text" : "password"}
               id="password"
-              autoComplete="current-password"
+              autoComplete="new-password"
+              value={formData.password}
+              onChange={handleInputChange}
+              error={!!errors.password}
+              helperText={errors.password}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      edge="end"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
 
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="confirmPassword"
+              label="Şifre Tekrar"
+              type={showConfirmPassword ? "text" : "password"}
+              id="confirmPassword"
+              autoComplete="new-password"
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
+              error={!!errors.confirmPassword}
+              helperText={errors.confirmPassword}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      edge="end"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                    >
+                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              sx={{ mt: 3, mb: 2, textTransform: "capitalize" }}
             >
-              Kaydol
+              Kayıt Yap
             </Button>
             <Grid container>
-              <Button
-                variant="outlined"
-                fullWidth
-                startIcon={<GoogleIcon />}
-                onClick={() => signUpProvider()}
-              >
-                Google ile giriş yap
-              </Button>
+              <Grid item xs>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  startIcon={<FcGoogle />}
+                  sx={{ textTransform: "capitalize" }}
+                  onClick={() => loginWithGoogle()}
+                >
+                  Google ile kayıt yap
+                </Button>
+              </Grid>
             </Grid>
           </Box>
-
-          {/* <Copyright sx={{ mt: 8, mb: 4 }} /> */}
         </Box>
       </Container>
     </ThemeProvider>

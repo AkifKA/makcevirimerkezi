@@ -1,18 +1,18 @@
 import { ToastContainer } from "react-toastify";
 import "./App.css";
-import AuthContextProvider from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext";
 import AppRouter from "./router/AppRouter";
-import { VideosProvider } from "./context/VideosContext";
+import { VideoProvider } from "./context/VideoContext";
 
 function App() {
   return (
     <>
-      <AuthContextProvider>
-        <VideosProvider>
+      <AuthProvider>
+        <VideoProvider>
           <AppRouter />
           <ToastContainer />
-        </VideosProvider>
-      </AuthContextProvider>
+        </VideoProvider>
+      </AuthProvider>
     </>
   );
 }
