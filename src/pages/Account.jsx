@@ -2,16 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import Typography from "@mui/material/Typography";
 import Avatar from "@mui/material/Avatar";
-import IconButton from "@mui/material/IconButton";
 import EditIcon from "@mui/icons-material/Edit";
-import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
 
 const Account = () => {
   const { currentUser, uploadProfileImage } = useAuth();
   const [profileImageUrl, setProfileImageUrl] = useState(null);
-  const [isEditingName, setIsEditingName] = useState(false);
-  const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
@@ -39,13 +35,16 @@ const Account = () => {
   return (
     <div>
       {currentUser && (
-        <Stack spacing={2} alignItems="center">
-          <Typography variant="h5" gutterBottom>
-            Hesap Bilgilerim
-          </Typography>
-
+        <Stack
+          spacing={2}
+          alignItems="center"
+          justifyContent={`center`}
+          alignContent={"center"}
+          fontSize={"1.2rem"}
+          fontWeight={600}
+        >
           <Typography variant="h6" gutterBottom>
-            Profil Resmim
+            Hesap Bilgilerim
           </Typography>
 
           <div
@@ -60,7 +59,7 @@ const Account = () => {
             onMouseLeave={() => setIsHovered(false)}
           >
             <Avatar
-              alt={currentUser.displayName}
+              alt={currentUser?.displayName}
               src={profileImageUrl}
               sx={{
                 width: "100%",
@@ -95,10 +94,8 @@ const Account = () => {
             </div>
           </div>
 
-          <Typography variant="h6">Adım: {currentUser.displayName}</Typography>
-          <Typography variant="h6">
-            Mail Adresim: {currentUser.email}
-          </Typography>
+          <Typography variant="h7"> {currentUser?.displayName}</Typography>
+          <Typography variant="h7">{currentUser?.email}</Typography>
         </Stack>
       )}
     </div>
