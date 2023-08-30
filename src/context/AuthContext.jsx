@@ -66,9 +66,8 @@ export function AuthProvider({ children }) {
 
         setCurrentUser(user);
       }
-
-      toastSuccessNotify("Giriş başarılı...");
       navigate(-1);
+      toastSuccessNotify("Giriş başarılı...");
     } catch (error) {
       toastErrorNotify("Giriş başarısız:", error);
     }
@@ -96,9 +95,8 @@ export function AuthProvider({ children }) {
           photoURL: imageUrl,
         }));
       }
-
-      toastSuccessNotify("Giriş başarılı...");
       navigate(-1);
+      toastSuccessNotify("Giriş başarılı...");
     } catch (error) {
       toastErrorNotify("Giriş başarısız:", error);
     }
