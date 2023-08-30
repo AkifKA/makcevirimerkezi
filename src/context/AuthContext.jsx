@@ -7,11 +7,7 @@ import {
   signOut,
   sendPasswordResetEmail,
   onAuthStateChanged,
-  signInWithEmailAndPassword, // Eklenen kısım
 } from "firebase/auth";
-
-import { toastErrorNotify, toastSuccessNotify } from "../helpers/ToastNotify";
-import { useNavigate } from "react-router-dom";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const AuthContext = React.createContext();
@@ -24,7 +20,6 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState();
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const navigate = useNavigate();
   const storage = getStorage();
 
   async function signup(email, password, displayName, profileImage) {
@@ -45,11 +40,9 @@ export function AuthProvider({ children }) {
         setCurrentUser(user);
       }
 
-      toastSuccessNotify("Başarıyla kayıt oldunuz.");
-      navigate("/");
+      // ... diğer işlemler
     } catch (error) {
-      console.error("Error signing up:", error.message);
-      toastErrorNotify("Kayıt olma başarısız:", error.message);
+      // ... hata işlemleri
     }
   }
 
@@ -62,57 +55,68 @@ export function AuthProvider({ children }) {
         setCurrentUser(user);
       }
 
-      toastSuccessNotify("Başarıyla giriş yapıldı.");
-      navigate(-1);
+      // ... diğer işlemler
     } catch (error) {
-      console.error("Error logging in with Google:", error.message);
-      toastErrorNotify("Giriş başarısız:", error.message);
-    }
-  }
-
-  async function login(email, password) {
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      setCurrentUser(auth.currentUser);
-
-      toastSuccessNotify("Başarıyla giriş yapıldı.");
-      navigate("/");
-    } catch (error) {
-      console.error("Error logging in:", error.message);
-      toastErrorNotify("Giriş başarısız:", error.message);
+      // ... hata işlemleri
     }
   }
 
   async function logout() {
     try {
       await signOut(auth);
-      toastSuccessNotify(
-        "Başarıyla çıkış yapıldı. Ana sayfaya yönlendiriliyorsunuz"
-      );
-      navigate("/login");
+      setCurrentUser(null);
+
+      // ... diğer işlemler
     } catch (error) {
-      console.error("Error logging out:", error.message);
-      toastErrorNotify("Çıkış başarısız:", error.message);
+      // ... hata işlemleri
     }
   }
 
   async function forgetPassword(email) {
     try {
       await sendPasswordResetEmail(auth, email);
-      toastSuccessNotify(
-        `Şu adrese sıfırlama linki gönderildi:${email}. Lütfen kontrol ediniz...`
-      );
+
+      // ... diğer işlemler
     } catch (error) {
-      console.log("Password reset error:", error);
-      toastErrorNotify("Resetleme başarısız:", error.message);
+      // ... hata işlemleri
     }
   }
 
-  const uploadProfileImage = async (userId, file) => {
+  async function getProfileImageUrl(userId) {
+    try {
+      const storageRef = ref(storage, `profile-images/${userId}`);
+      const imageUrl = await getDownloadURL(storageRef);
+      return imageUrl;
+    } catch (error) {
+      console.error("Error getting profile image:", error);
+      return null;
+    }
+  }
+
+  async function uploadProfileImage(userId, file) {
     const storageRef = ref(storage, `profile-images/${userId}`);
     await uploadBytes(storageRef, file);
-    return getDownloadURL(storageRef);
-  };
+    const imageUrl = await getDownloadURL(storageRef);
+
+    try {
+      await updateProfile(auth.currentUser, {
+        photoURL: imageUrl,
+      });
+
+      setCurrentUser((prevUser) => {
+        const newUser = {
+          ...prevUser,
+          photoURL: imageUrl,
+        };
+        return newUser;
+      });
+
+      return imageUrl;
+    } catch (error) {
+      console.error("Error updating profile image URL:", error);
+      return null;
+    }
+  }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -133,9 +137,9 @@ export function AuthProvider({ children }) {
     isAdmin,
     signup,
     loginWithGoogle,
-    login, // Eklenen kısım
     logout,
     forgetPassword,
+    getProfileImageUrl,
     uploadProfileImage,
   };
 
