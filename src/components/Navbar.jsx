@@ -11,8 +11,9 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import TranslateIcon from "@mui/icons-material/Translate";
+// import TranslateIcon from "@mui/icons-material/Translate";
 import { useLocation, useNavigate } from "react-router-dom";
+import MyLogo from "../assets/logo4.png";
 
 import { Grid } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
@@ -59,46 +60,6 @@ function NavBar() {
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <TranslateIcon
-            fontSize="large"
-            sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}
-          />
-          {/* <Stack
-         justifyContent={"center"}
-         alignItems={"center"}
-         direction={"column"}
-       >
-         <Typography
-           variant="h6"
-           component="a"
-           href="/"
-           sx={{
-             display: { xs: "none", md: "flex" },
-             fontFamily: "monospace",
-             fontWeight: 700,
-             color: "inherit",
-             textDecoration: "none",
-             fontSize: "1.5rem",
-           }}
-         >
-           MAK
-         </Typography>
-         <Typography
-           variant="h6"
-           component="a"
-           href="/"
-           sx={{
-             display: { xs: "none", md: "flex" },
-             fontFamily: "monospace",
-             fontWeight: 700,
-             color: "inherit",
-             textDecoration: "none",
-             fontSize: "1.3rem",
-           }}
-         >
-           Çeviri Merkezi
-         </Typography>
-       </Stack> */}
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="medium"
@@ -142,8 +103,15 @@ function NavBar() {
               ))}
             </Menu>
           </Box>
-          <TranslateIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
-          <Typography
+          <img
+            src={MyLogo}
+            alt="My Custom Logo"
+            width={100} // Adjust the width according to your design
+            height={50} // Adjust the height according to your design
+            sx={{ display: { xs: "flex", md: "none" }, mr: 1 }}
+          />
+          {/* <TranslateIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} /> */}
+          {/* <Typography
             variant="h6"
             noWrap
             component="a"
@@ -152,16 +120,15 @@ function NavBar() {
               mr: 2,
               display: { xs: "flex", md: "none" },
               flexGrow: 1,
-              fontFamily: "monospace",
-              fontWeight: 700,
-              fontSize: "1.1rem",
+              fontFamily: "sans-serif",
+              fontSize: ".6rem",
 
               color: "inherit",
               textDecoration: "none",
             }}
           >
-            MAK Çeviri Merkezi
-          </Typography>
+            Arapça Türkçe İçeriklwe
+          </Typography> */}
           {currentUser && (
             <Typography
               sx={{
