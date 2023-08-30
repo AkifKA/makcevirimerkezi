@@ -13,7 +13,7 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 
 import { useLocation, useNavigate } from "react-router-dom";
-import MyLogo from "../assets/logo4.png";
+import MyLogo from "../assets/logo.png";
 
 import { Grid, Link } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
