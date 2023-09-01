@@ -1,6 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { database } from "../auth/firebase"; // Firebase bağlantısını içe aktarın
-import { child, onValue, push, ref, remove, set } from "firebase/database";
+import {
+  child,
+  onChildAdded,
+  onChildChanged,
+  onValue,
+  push,
+  ref,
+  remove,
+  set,
+} from "firebase/database";
 
 // Firebase veritabanı referanslarını burada tanımlayın
 const categoriesRef = ref(database, "categories"); // Ref işlevini kullanarak veritabanı referansını alın
@@ -19,8 +28,8 @@ export const VideoProvider = ({ children }) => {
   const [selectedSubCategory, setSelectedSubCategory] = useState(""); // Yeni eklenen
 
   useEffect(() => {
-    // Kategorileri Firebase'den alın
-    onValue(categoriesRef, (snapshot) => {
+    // Kategorileri Firebase'den dinle
+    const categoriesListener = onValue(categoriesRef, (snapshot) => {
       const categoryData = snapshot.val();
       if (categoryData) {
         const categoryList = Object.keys(categoryData).map((key) => ({
@@ -33,13 +42,14 @@ export const VideoProvider = ({ children }) => {
       }
     });
 
-    // Alt kategorileri Firebase'den alın
-    onValue(subcategoriesRef, (snapshot) => {
+    // Alt kategorileri Firebase'den dinle
+    const subcategoriesListener = onValue(subcategoriesRef, (snapshot) => {
       const subcategoryData = snapshot.val();
       if (subcategoryData) {
         const subcategoryList = Object.keys(subcategoryData).map((key) => ({
           id: key,
           name: subcategoryData[key].name,
+          url: subcategoryData[key].url,
           categoryId: subcategoryData[key].categoryId,
         }));
         setSubcategories(subcategoryList);
@@ -48,8 +58,8 @@ export const VideoProvider = ({ children }) => {
       }
     });
 
-    // Videoları Firebase'den alın
-    onValue(videosRef, (snapshot) => {
+    // Videoları Firebase'den dinle
+    const videosListener = onValue(videosRef, (snapshot) => {
       const videoData = snapshot.val();
       if (videoData) {
         const videoList = Object.keys(videoData).map((key) => ({
@@ -66,8 +76,14 @@ export const VideoProvider = ({ children }) => {
         setVideos([]);
       }
     });
-  }, []);
 
+    // useEffect'in temizleme işlevi ile dinleyicileri kaldırın
+    return () => {
+      categoriesListener();
+      subcategoriesListener();
+      videosListener();
+    };
+  }, [setCategories, setSubcategories, setVideos]);
   // Kategori ekleme işlemi için bir işlev
   const addCategory = (newCategory) => {
     push(categoriesRef, { name: newCategory });
