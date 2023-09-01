@@ -1,131 +1,170 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { getDatabase, ref, push, onValue, set, get } from "firebase/database";
-import { useAuth } from "./AuthContext";
+import { database } from "../auth/firebase"; // Firebase bağlantısını içe aktarın
+import { child, onValue, push, ref, remove, set } from "firebase/database";
 
+// Firebase veritabanı referanslarını burada tanımlayın
+const categoriesRef = ref(database, "categories"); // Ref işlevini kullanarak veritabanı referansını alın
+const subcategoriesRef = ref(database, "subcategories"); // Ref işlevini kullanarak veritabanı referansını alın
+const videosRef = ref(database, "videos"); // Ref işlevini kullanarak veritabanı referansını alın
+
+// VideoContext'i oluşturun
 const VideoContext = createContext();
 
-export function useVideo() {
-  return useContext(VideoContext);
-}
-
-export function VideoProvider({ children }) {
-  const [videos, setVideos] = useState([]);
+// VideoProvider bileşenini oluşturun
+export const VideoProvider = ({ children }) => {
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("cartoons");
-  const [selectedCategoryInfo, setSelectedCategoryInfo] = useState(null);
-  const [filteredVideos, setFilteredVideos] = useState([]);
-
-  const { currentUser } = useAuth();
-  const db = getDatabase();
-
-  const videosRef = ref(db, "videos");
-  const categoriesRef = ref(db, "categories");
+  const [subcategories, setSubcategories] = useState([]);
+  const [videos, setVideos] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(""); // Yeni eklenen
+  const [selectedSubCategory, setSelectedSubCategory] = useState(""); // Yeni eklenen
 
   useEffect(() => {
-    const fetchVideos = async () => {
-      try {
-        const snapshot = await get(videosRef);
-        const videosData = snapshot.val();
-
-        if (videosData) {
-          const videosArray = Object.keys(videosData).map((key) => ({
-            video_id: key,
-            ...videosData[key],
-          }));
-          setVideos(videosArray);
-
-          const filtered = videosArray.filter(
-            (video) => video.category === selectedCategory
-          );
-          setFilteredVideos(filtered);
-        }
-      } catch (error) {
-        console.error("Error fetching videos:", error.message);
-      }
-    };
-
-    const fetchCategories = async () => {
-      try {
-        const snapshot = await get(categoriesRef);
-        const categoriesData = snapshot.val();
-
-        if (categoriesData) {
-          const categoriesArray = Object.keys(categoriesData).map(
-            (categoryId) => ({
-              category_id: categoryId,
-              name: categoriesData[categoryId].name,
-              videos: videos.filter((video) => video.category === categoryId),
-            })
-          );
-          setCategories(categoriesArray);
-        }
-      } catch (error) {
-        console.error("Error fetching categories:", error.message);
-      }
-    };
-
-    fetchVideos();
-    fetchCategories();
-  }, [selectedCategory]);
-
-  async function addVideo(video) {
-    try {
-      const videoWithCategory = { ...video, category: selectedCategory };
-      await push(videosRef, videoWithCategory);
-    } catch (error) {
-      console.error("Error adding video:", error.message);
-    }
-  }
-
-  async function addComment(videoId, comment) {
-    try {
-      const commentsRef = ref(db, `videos/${videoId}/comments`);
-      await push(commentsRef, {
-        userId: currentUser.uid,
-        comment,
-      });
-    } catch (error) {
-      console.error("Error adding comment:", error.message);
-    }
-  }
-
-  async function toggleLike(videoId) {
-    try {
-      const videoRef = ref(db, `videos/${videoId}/likes/${currentUser.uid}`);
-      const snapshot = await get(videoRef);
-
-      if (snapshot.exists()) {
-        await set(videoRef, null);
+    // Kategorileri Firebase'den alın
+    onValue(categoriesRef, (snapshot) => {
+      const categoryData = snapshot.val();
+      if (categoryData) {
+        const categoryList = Object.keys(categoryData).map((key) => ({
+          id: key,
+          name: categoryData[key].name,
+        }));
+        setCategories(categoryList);
       } else {
-        await set(videoRef, true);
+        setCategories([]);
       }
-    } catch (error) {
-      console.error("Error toggling like:", error.message);
-    }
-  }
+    });
 
-  async function addCategory(newCategory) {
-    try {
-      await push(categoriesRef, { name: newCategory });
-    } catch (error) {
-      console.error("Error adding category:", error.message);
-    }
-  }
+    // Alt kategorileri Firebase'den alın
+    onValue(subcategoriesRef, (snapshot) => {
+      const subcategoryData = snapshot.val();
+      if (subcategoryData) {
+        const subcategoryList = Object.keys(subcategoryData).map((key) => ({
+          id: key,
+          name: subcategoryData[key].name,
+          categoryId: subcategoryData[key].categoryId,
+        }));
+        setSubcategories(subcategoryList);
+      } else {
+        setSubcategories([]);
+      }
+    });
 
-  const value = {
-    videos: filteredVideos,
-    categories,
-    selectedCategory,
-    selectedCategoryInfo,
-    setSelectedCategory,
-    setSelectedCategoryInfo,
-    addVideo,
-    addComment,
-    toggleLike,
-    addCategory,
+    // Videoları Firebase'den alın
+    onValue(videosRef, (snapshot) => {
+      const videoData = snapshot.val();
+      if (videoData) {
+        const videoList = Object.keys(videoData).map((key) => ({
+          id: key,
+          title: videoData[key].title,
+          description: videoData[key].description,
+          url: videoData[key].url,
+          imgUrl: videoData[key].imgUrl,
+          categoryId: videoData[key].categoryId,
+          subcategoryId: videoData[key].subcategoryId,
+        }));
+        setVideos(videoList);
+      } else {
+        setVideos([]);
+      }
+    });
+  }, []);
+
+  // Kategori ekleme işlemi için bir işlev
+  const addCategory = (newCategory) => {
+    push(categoriesRef, { name: newCategory });
+  };
+
+  // Kategori silme işlemi için bir işlev
+  const deleteCategory = (categoryId) => {
+    remove(child(categoriesRef, categoryId));
+  };
+
+  // Alt kategori ekleme işlemi için bir işlev
+  const addSubcategory = (newSubcategory, categoryId, newSubCategoryUrl) => {
+    push(subcategoriesRef, {
+      name: newSubcategory,
+      categoryId,
+      url: newSubCategoryUrl,
+    });
+  };
+
+  // Alt kategori silme işlemi için bir işlev
+  const deleteSubcategory = (subcategoryId) => {
+    remove(child(subcategoriesRef, subcategoryId));
+  };
+
+  // Kategori seçme işlemi için bir işlev
+  const handleSelectCategory = (categoryId) => {
+    setSelectedCategory(categoryId);
+    setSelectedSubCategory("");
+  };
+
+  // Alt kategori seçme işlemi için bir işlev
+  const handleSelectSubCategory = (subcategoryId) => {
+    setSelectedSubCategory(subcategoryId);
+  };
+  // Kategori düzenleme işlemi için bir işlev
+  // Kategori düzenleme işlemi için bir işlev
+  const editCategory = (categoryId, newName) => {
+    const categoryRef = child(categoriesRef, categoryId);
+    set(categoryRef, { name: newName });
+  };
+
+  // Alt kategori düzenleme işlemi için bir işlev
+  const editSubcategory = (subcategoryId, newName) => {
+    const subcategoryRef = child(subcategoriesRef, subcategoryId);
+    set(subcategoryRef, { name: newName });
+  };
+
+  // Video ekleme işlemi için bir işlev
+  const addVideo = (
+    title,
+    description,
+    url,
+    imgUrl,
+    categoryId,
+    subcategoryId
+  ) => {
+    push(videosRef, {
+      title,
+      description,
+      url,
+      imgUrl,
+      categoryId,
+      subcategoryId,
+    });
   };
 
   return (
-    <VideoContext.Provider value={value}>{children}</VideoContext.Provider>
+    <VideoContext.Provider
+      value={{
+        categories,
+        subcategories,
+        videos,
+        addCategory,
+        deleteCategory,
+        addSubcategory,
+        deleteSubcategory,
+        addVideo,
+        selectedCategory,
+        setSelectedCategory, // Bu değerin doğru şekilde iletilmesi gerekiyor
+        selectedSubCategory,
+        handleSelectCategory,
+        handleSelectSubCategory,
+        setSelectedSubCategory,
+        editCategory,
+        editSubcategory,
+      }}
+    >
+      {children}
+    </VideoContext.Provider>
   );
-}
+};
+
+// VideoContext'i kullanmak için özelleştirilmiş bir hook oluşturun
+export const useVideo = () => {
+  const context = useContext(VideoContext);
+  if (!context) {
+    throw new Error("useVideoContext must be used within a VideoProvider");
+  }
+  return context;
+};

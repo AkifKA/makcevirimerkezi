@@ -19,6 +19,7 @@ import Feedbacks from "../pages/Feedbacks";
 import Footer from "../components/Footer";
 import PrivateRouter from "./PrivateRouter";
 import AdminPanel from "../pages/AdminPanel";
+import VideoDetails from "../components/VideoDetail";
 
 const AppRouter = () => {
   return (
@@ -41,6 +42,7 @@ const AppRouter = () => {
           <Route path="/my-account" element={<Account />} />
           <Route path="/my-favorites" element={<MyFavorites />} />
           <Route path="/admin-panel" element={<AdminPanel />} />
+          <Route path="/details" element={<VideoDetails />} />
         </Route>
       </Routes>
       {/* <Footer /> */}

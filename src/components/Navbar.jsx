@@ -143,6 +143,7 @@ function NavBar() {
               }}
             >
               {currentUser?.displayName}
+              {!currentUser && "Giriş Yapınız"}
             </Typography>
           )}
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
@@ -176,7 +177,7 @@ function NavBar() {
                     display: { xs: "none", md: "block" },
                   }}
                 >
-                  {currentUser?.displayName}
+                  {currentUser ? currentUser?.displayName : "Giriş Yapınız"}
                 </Typography>
               </Grid>
               <Grid item>

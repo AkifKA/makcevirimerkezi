@@ -7,7 +7,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 
-function VideoDetail() {
+function VideoDetails() {
   const { videos, addComment, toggleLike } = useVideo();
   const { currentUser } = useAuth();
 
@@ -79,4 +79,4 @@ function VideoDetail() {
   );
 }
 
-export default VideoDetail;
+export default VideoDetails;

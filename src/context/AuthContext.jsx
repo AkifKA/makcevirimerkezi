@@ -170,7 +170,11 @@ export function AuthProvider({ children }) {
       setCurrentUser(user);
 
       if (user) {
-        setIsAdmin(user.email === "makceviriatolyesi@gmail.com");
+        setIsAdmin(
+          user.email === "makceviriatolyesi@gmail.com" ||
+            user.email === "karaozmehmetakif@gmail.com" ||
+            user.email === "mucahid1985@gmail.com"
+        );
       }
 
       setLoading(false);

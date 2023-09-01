@@ -1,146 +1,224 @@
 import React, { useState } from "react";
 import {
-  Card,
-  CardContent,
-  Typography,
+  Container,
+  Grid,
+  Paper,
   TextField,
   Button,
-  Select,
-  MenuItem,
+  Divider,
   FormControl,
   InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { useVideo } from "../context/VideoContext";
-import { useAuth } from "../context/AuthContext";
 
 function AdminPanel() {
   const {
-    addVideo,
     categories,
+    subcategories,
+    selectedCategory,
+    setSelectedCategory,
+    selectedSubCategory,
+    setSelectedSubCategory,
     addCategory,
-    selectedCategoryInfo,
-    handleSelectedCategoryChange,
+    deleteCategory,
+    addSubcategory,
+    deleteSubcategory,
+    addVideo,
+    editCategory, // Yeni eklenen
+    editSubcategory, // Yeni eklenen
   } = useVideo();
 
-  const [category, setCategory] = useState("");
   const [newCategory, setNewCategory] = useState("");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [url, setUrl] = useState("");
-  const { isAdmin } = useAuth();
-  const handleUpload = () => {
-    const newVideo = {
-      category,
-      title,
-      description,
-      url,
-    };
+  const [newSubCategory, setNewSubCategory] = useState("");
+  const [newSubCategoryImgUrl, setNewSubCategoryImgUrl] = useState("");
+  const [videoTitle, setVideoTitle] = useState("");
+  const [videoDescription, setVideoDescription] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
+  const [videoImgUrl, setVideoImgUrl] = useState("");
 
-    addVideo(newVideo);
-    // Burada sayfa yönlendirmesi veya başka bir işlem yapabilirsiniz
+  const handleCategoryChange = (event) => {
+    setSelectedCategory(event.target.value);
+    setSelectedSubCategory("");
   };
 
-  const handleAddCategory = () => {
-    if (newCategory) {
-      addCategory(newCategory);
+  const handleCategoryAdd = () => {
+    addCategory(newCategory);
+    setNewCategory("");
+  };
+
+  const handleCategoryDelete = () => {
+    if (selectedCategory) {
+      deleteCategory(selectedCategory);
+      setSelectedCategory("");
+    }
+  };
+
+  const handleSubCategoryAdd = () => {
+    if (selectedCategory) {
+      addSubcategory(newSubCategory, selectedCategory, newSubCategoryImgUrl);
+      setNewSubCategory("");
+      setNewSubCategoryImgUrl("");
+    }
+  };
+
+  const handleSubCategoryDelete = () => {
+    if (selectedSubCategory) {
+      deleteSubcategory(selectedSubCategory);
+      setSelectedSubCategory("");
+    }
+  };
+
+  const handleEditCategory = () => {
+    if (selectedCategory && newCategory !== "") {
+      editCategory(selectedCategory, newCategory);
       setNewCategory("");
     }
   };
 
-  if (!isAdmin) {
-    return (
-      <Typography textAlign={"center"} variant="h3" mt={3}>
-        Bu sayfaya yalnızca yöneticiler erişebilir...
-      </Typography>
-    );
-  }
+  const handleEditSubcategory = () => {
+    if (selectedSubCategory && newSubCategory !== "") {
+      editSubcategory(selectedSubCategory, newSubCategory);
+      setNewSubCategory("");
+    }
+  };
+
+  const handleVideoAdd = () => {
+    if (selectedSubCategory) {
+      addVideo(
+        videoTitle,
+        videoDescription,
+        videoUrl,
+        videoImgUrl,
+        selectedCategory,
+        selectedSubCategory
+      );
+      setVideoTitle("");
+      setVideoDescription("");
+      setVideoUrl("");
+      setVideoImgUrl("");
+    }
+  };
 
   return (
-    <Card style={{ maxWidth: "400px", margin: "0 auto", marginTop: "20px" }}>
-      <CardContent>
-        <Typography variant="h5" gutterBottom>
-          Upload a Video
-        </Typography>
-        <FormControl fullWidth style={{ marginBottom: "20px" }}>
-          <InputLabel>Category</InputLabel>
-          <Select
-            value={category}
-            onChange={(e) => {
-              setCategory(e.target.value);
-              handleSelectedCategoryChange(e.target.value);
-            }}
-          >
-            {categories.map((cat) => (
-              <MenuItem key={cat.category_id} value={cat.name}>
-                {cat.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        {selectedCategoryInfo && (
-          <div style={{ marginBottom: "20px" }}>
-            <Typography variant="h6">Selected Category Info</Typography>
-            <Typography>Category Name: {selectedCategoryInfo.name}</Typography>
-            <Typography>Videos:</Typography>
-            <ul>
-              {selectedCategoryInfo.videos.map((video) => (
-                <li key={video.video_id}>
-                  <Typography>Title: {video.title}</Typography>
-                  <Typography>Description: {video.description}</Typography>
-                  <Typography>URL: {video.url}</Typography>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        <TextField
-          label="New Category"
-          fullWidth
-          value={newCategory}
-          onChange={(e) => setNewCategory(e.target.value)}
-          style={{ marginBottom: "10px" }}
-        />
-        <Button
-          onClick={handleAddCategory}
-          variant="contained"
-          color="primary"
-          style={{ marginBottom: "20px" }}
-        >
-          Add Category
-        </Button>
-        <TextField
-          label="Video Title"
-          fullWidth
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          style={{ marginBottom: "10px" }}
-        />
-        <TextField
-          label="Video Description"
-          fullWidth
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          style={{ marginBottom: "10px" }}
-        />
-        <TextField
-          label="Video URL"
-          fullWidth
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          style={{ marginBottom: "20px" }}
-        />
-        <Button
-          onClick={handleUpload}
-          variant="contained"
-          color="primary"
-          fullWidth
-        >
-          Upload
-        </Button>
-      </CardContent>
-    </Card>
+    <Container>
+      <Paper elevation={3} style={{ padding: "20px", marginTop: "20px" }}>
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <FormControl fullWidth>
+              <InputLabel>Select a Category:</InputLabel>
+              <Select value={selectedCategory} onChange={handleCategoryChange}>
+                <MenuItem value="">Select a category</MenuItem>
+                {categories.map((category) => (
+                  <MenuItem key={category.id} value={category.id}>
+                    {category.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Add New Category"
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+            />
+            <Button variant="contained" onClick={handleCategoryAdd}>
+              Add Category
+            </Button>
+            <Button variant="contained" onClick={handleCategoryDelete}>
+              Delete Category
+            </Button>
+            <Button variant="contained" onClick={handleEditCategory}>
+              Edit Category
+            </Button>
+          </Grid>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          <Grid item xs={12}>
+            <FormControl fullWidth>
+              <InputLabel>Select a Subcategory:</InputLabel>
+              <Select
+                value={selectedSubCategory}
+                onChange={(e) => setSelectedSubCategory(e.target.value)}
+              >
+                <MenuItem value="">Select a subcategory</MenuItem>
+                {subcategories
+                  .filter(
+                    (subcategory) => subcategory.categoryId === selectedCategory
+                  )
+                  .map((filteredSubcategory) => (
+                    <MenuItem
+                      key={filteredSubcategory.id}
+                      value={filteredSubcategory.id}
+                    >
+                      {filteredSubcategory.name}
+                    </MenuItem>
+                  ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Add New Subcategory"
+              value={newSubCategory}
+              onChange={(e) => setNewSubCategory(e.target.value)}
+            />
+            <TextField
+              fullWidth
+              label="Subcategory Image URL"
+              value={newSubCategoryImgUrl}
+              onChange={(e) => setNewSubCategoryImgUrl(e.target.value)}
+            />
+            <Button variant="contained" onClick={handleSubCategoryAdd}>
+              Add Subcategory
+            </Button>
+            <Button variant="contained" onClick={handleSubCategoryDelete}>
+              Delete Subcategory
+            </Button>
+            <Button variant="contained" onClick={handleEditSubcategory}>
+              Edit Subcategory
+            </Button>
+          </Grid>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Video Title"
+              value={videoTitle}
+              onChange={(e) => setVideoTitle(e.target.value)}
+            />
+            <TextField
+              fullWidth
+              label="Video Description"
+              value={videoDescription}
+              onChange={(e) => setVideoDescription(e.target.value)}
+            />
+            <TextField
+              fullWidth
+              label="Video URL"
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+            />
+            <TextField
+              fullWidth
+              label="Video Image URL"
+              value={videoImgUrl}
+              onChange={(e) => setVideoImgUrl(e.target.value)}
+            />
+            <Button variant="contained" onClick={handleVideoAdd}>
+              Add Video
+            </Button>
+          </Grid>
+        </Grid>
+      </Paper>
+    </Container>
   );
 }
 

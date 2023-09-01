@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getDatabase } from "firebase/database"; // getDatabase'ı içe aktarın
 
 const app = initializeApp({
   apiKey: process.env.REACT_APP_apiKey,
@@ -13,3 +14,6 @@ const app = initializeApp({
 
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
+
+// Firebase Realtime Database bağlantısını burada tanımlayın
+export const database = getDatabase(app);
