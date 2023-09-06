@@ -19,7 +19,7 @@ const ContentCarousel = ({ cartoons }) => {
       }}
       effect={"fade"}
     >
-      {cartoons.map(({ title, description, img_url }) => (
+      {cartoons?.map(({ title, description, img_url }) => (
         <SwiperSlide key={title}>
           <Box
             display={"flex"}

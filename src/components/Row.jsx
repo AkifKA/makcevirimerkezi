@@ -21,8 +21,10 @@ import {
 import "swiper/css/bundle";
 
 import "swiper/css/scrollbar";
+import { useNavigate } from "react-router-dom";
 
 const Row = ({ cartoons, title }) => {
+  const navigate = useNavigate();
   return (
     <Box mt={2}>
       <Typography textAlign={"left"} variant="h4">
@@ -40,7 +42,10 @@ const Row = ({ cartoons, title }) => {
       >
         {cartoons.map((video) => (
           <SwiperSlide key={video.id}>
-            <Card sx={{ maxWidth: 500, backgroundColor: "gray" }}>
+            <Card
+              sx={{ maxWidth: 500, backgroundColor: "gray" }}
+              onClick={() => navigate("/details/" + video.id)}
+            >
               <CardActionArea>
                 <CardMedia
                   component="img"

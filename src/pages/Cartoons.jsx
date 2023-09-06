@@ -66,13 +66,17 @@ function Cartoons() {
 
   return (
     <Stack spacing={5}>
-      <ContentCarousel cartoons={randomCartoons} />
-      <Row title={"İmam Buhâri Serisi"} cartoons={buhariCartoons} />
-      <Row
-        title={"İslam Hikâyeleri Serisi"}
-        cartoons={islamHikayeleriCartoons}
-      />
-      <Row title={"Habibullah Serisi"} cartoons={habibullahCartoons} />
+      {allVideos && (
+        <>
+          <ContentCarousel cartoons={randomCartoons} />
+          <Row title={"İmam Buhâri Serisi"} cartoons={buhariCartoons} />
+          <Row
+            title={"İslam Hikâyeleri Serisi"}
+            cartoons={islamHikayeleriCartoons}
+          />
+          <Row title={"Habibullah Serisi"} cartoons={habibullahCartoons} />
+        </>
+      )}
     </Stack>
   );
 }
