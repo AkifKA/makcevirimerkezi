@@ -30,8 +30,8 @@ const ContentCarousel = ({ cartoons }) => {
               height: "85vh",
               width: "100%",
               backgroundRepeat: "no-repeat",
-              backgroundSize: "contain",
-              backgroundPosition: "top center",
+              backgroundSize: "cover",
+              backgroundPosition: "center center",
               marginTop: ".2rem",
             }}
           >
