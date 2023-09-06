@@ -1,11 +1,4 @@
-// Cartoons.jsx
 import React, { useEffect, useState } from "react";
-
-import { useVideo } from "../context/VideoContext";
-import { useAuth } from "../context/AuthContext";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
 import { useParams } from "react-router-dom";
 import {
   Card,
@@ -14,30 +7,25 @@ import {
   CardMedia,
   IconButton,
   styled,
+  TextField,
+  Button,
 } from "@mui/material";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ChatIcon from "@mui/icons-material/Chat";
+import { useVideo } from "../context/VideoContext";
+import { useLikeComment } from "../context/LikesComments";
 
 function VideoDetails() {
-  const [cartoon, setCartoon] = useState({});
-
+  const [commentText, setCommentText] = useState(""); // Yorum metnini saklamak için yeni bir state
+  const [isCommentFormVisible, setCommentFormVisible] = useState(false);
   const { allVideos } = useVideo();
+
   const { id } = useParams();
-  console.log(allVideos);
+  const { addLike, videoLikes, videoComments, addComment } = useLikeComment();
 
-  const getFilteredCartoon = () => {
-    try {
-      const filteredVideo = allVideos?.find((cartoon) => cartoon?.id === id);
-      return filteredVideo;
-    } catch (error) {
-      console.error("Hata:", error);
-      throw error;
-    }
-  };
-
-  useEffect(() => {
-    setCartoon(getFilteredCartoon());
-  }, [allVideos]);
+  // VideoProvider ile sağlanan tüm videoları kullanarak filtreleme
+  const filteredVideos = allVideos.filter((video) => video.id === id);
+  const cartoon = filteredVideos[0];
 
   const RootContainer = styled(Card)(({ theme }) => ({
     display: "flex",
@@ -57,6 +45,19 @@ function VideoDetails() {
     justifyContent: "space-between",
     marginTop: theme.spacing(1),
   }));
+
+  const handleAddComment = (e) => {
+    e.preventDefault();
+    if (commentText) {
+      // Yorumu Firebase veritabanına ekleyin
+      addComment(cartoon.id, commentText);
+
+      // Yorum ekledikten sonra formu sıfırla ve gizle
+      setCommentText("");
+      setCommentFormVisible(false);
+    }
+  };
+
   return (
     <RootContainer>
       {cartoon && (
@@ -69,7 +70,6 @@ function VideoDetails() {
             allow="autoplay; fullscreen; picture-in-picture"
           />
 
-          <script src="https://player.vimeo.com/api/player.js"></script>
           <CardContent>
             <Typography variant="h5" component="div">
               {cartoon.title}
@@ -79,17 +79,38 @@ function VideoDetails() {
             </Typography>
           </CardContent>
           <IconContainer>
-            <IconButton>
+            <IconButton onClick={() => addLike(cartoon.id)}>
               <ThumbUpIcon />
             </IconButton>
-            <IconButton>
+            <IconButton onClick={() => setCommentFormVisible(true)}>
               <ChatIcon />
             </IconButton>
           </IconContainer>
           <Typography variant="body2" color="textSecondary">
-            {cartoon.likes} Beğeni | {cartoon.comments} Yorum
+            {videoLikes[cartoon.id] || 0} Beğeni
           </Typography>
-          {/* Burada yorumları ve yorum yapma bileşenini eklemek isterseniz, bu kısımları ekleyebilirsiniz */}
+          {isCommentFormVisible && (
+            <form onSubmit={handleAddComment}>
+              <TextField
+                fullWidth
+                label="Yorum Ekle"
+                variant="outlined"
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+              />
+              <Button variant="contained" color="primary" type="submit">
+                Yorumu Kaydet
+              </Button>
+            </form>
+          )}
+          <div>
+            <Typography variant="h6">Yorumlar</Typography>
+            <ul>
+              {videoComments[cartoon.id]?.map((comment, index) => (
+                <li key={index}>{comment}</li>
+              ))}
+            </ul>
+          </div>
         </>
       )}
     </RootContainer>
