@@ -47,7 +47,7 @@ function VideoDetails() {
   }));
 
   const Media = styled(CardMedia)(({ theme }) => ({
-    height: 300,
+    height: 400,
     width: "100%",
     objectFit: "cover",
   }));
@@ -66,7 +66,10 @@ function VideoDetails() {
             alt={cartoon.title}
             image={cartoon.frame_url}
             title={cartoon.title}
+            allow="autoplay; fullscreen; picture-in-picture"
           />
+
+          <script src="https://player.vimeo.com/api/player.js"></script>
           <CardContent>
             <Typography variant="h5" component="div">
               {cartoon.title}
