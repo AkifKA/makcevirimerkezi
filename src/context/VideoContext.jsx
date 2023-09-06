@@ -1,186 +1,354 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { database } from "../auth/firebase"; // Firebase bağlantısını içe aktarın
-import {
-  child,
-  onChildAdded,
-  onChildChanged,
-  onValue,
-  push,
-  ref,
-  remove,
-  set,
-} from "firebase/database";
+import { database } from "../auth/firebase";
+import { off, onValue, ref, push, set, remove } from "firebase/database";
 
-// Firebase veritabanı referanslarını burada tanımlayın
-const categoriesRef = ref(database, "categories"); // Ref işlevini kullanarak veritabanı referansını alın
-const subcategoriesRef = ref(database, "subcategories"); // Ref işlevini kullanarak veritabanı referansını alın
-const videosRef = ref(database, "videos"); // Ref işlevini kullanarak veritabanı referansını alın
-
-// VideoContext'i oluşturun
 const VideoContext = createContext();
 
-// VideoProvider bileşenini oluşturun
-export const VideoProvider = ({ children }) => {
+export function VideoProvider({ children }) {
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryImageUrl, setNewCategoryImageUrl] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [newSubcategoryName, setNewSubcategoryName] = useState("");
+  const [newSubcategoryImageUrl, setNewSubcategoryImageUrl] = useState("");
+  const [selectedParentCategory, setSelectedParentCategory] = useState("");
+  const [newVideoTitle, setNewVideoTitle] = useState("");
+  const [newVideoDescription, setNewVideoDescription] = useState("");
+  const [newVideoImgUrl, setNewVideoImgUrl] = useState("");
+  const [newVideoFrameUrl, setNewVideoFrameUrl] = useState("");
+  const [selectedSubcategory, setSelectedSubcategory] = useState("");
   const [categories, setCategories] = useState([]);
-  const [subcategories, setSubcategories] = useState([]);
   const [videos, setVideos] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(""); // Yeni eklenen
-  const [selectedSubCategory, setSelectedSubCategory] = useState(""); // Yeni eklenen
+  const [selectedCategoryData] = useState(null);
+  const [selectedSubcategoryData] = useState(null);
+  const [subcategoryVideos, setSubcategoryVideos] = useState([]);
+  const [allVideos, setAllVideos] = useState([]); // Tüm videoları saklamak için
 
   useEffect(() => {
-    // Kategorileri Firebase'den dinle
-    const categoriesListener = onValue(categoriesRef, (snapshot) => {
-      const categoryData = snapshot.val();
-      if (categoryData) {
-        const categoryList = Object.keys(categoryData).map((key) => ({
-          id: key,
-          name: categoryData[key].name,
-        }));
+    const categoriesRef = ref(database, "categories");
+
+    onValue(categoriesRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const categoryList = [];
+        Object.keys(data).forEach((categoryId) => {
+          const category = data[categoryId];
+          category.id = categoryId;
+          categoryList.push(category);
+        });
         setCategories(categoryList);
-      } else {
-        setCategories([]);
       }
     });
 
-    // Alt kategorileri Firebase'den dinle
-    const subcategoriesListener = onValue(subcategoriesRef, (snapshot) => {
-      const subcategoryData = snapshot.val();
-      if (subcategoryData) {
-        const subcategoryList = Object.keys(subcategoryData).map((key) => ({
-          id: key,
-          name: subcategoryData[key].name,
-          url: subcategoryData[key].url,
-          categoryId: subcategoryData[key].categoryId,
-        }));
-        setSubcategories(subcategoryList);
-      } else {
-        setSubcategories([]);
-      }
-    });
-
-    // Videoları Firebase'den dinle
-    const videosListener = onValue(videosRef, (snapshot) => {
-      const videoData = snapshot.val();
-      if (videoData) {
-        const videoList = Object.keys(videoData).map((key) => ({
-          id: key,
-          title: videoData[key].title,
-          description: videoData[key].description,
-          url: videoData[key].url,
-          imgUrl: videoData[key].imgUrl,
-          categoryId: videoData[key].categoryId,
-          subcategoryId: videoData[key].subcategoryId,
-        }));
-        setVideos(videoList);
-      } else {
-        setVideos([]);
-      }
-    });
-
-    // useEffect'in temizleme işlevi ile dinleyicileri kaldırın
     return () => {
-      categoriesListener();
-      subcategoriesListener();
-      videosListener();
+      off(categoriesRef);
     };
-  }, [setCategories, setSubcategories, setVideos]);
-  // Kategori ekleme işlemi için bir işlev
-  const addCategory = (newCategory) => {
-    push(categoriesRef, { name: newCategory });
-  };
+  }, [setCategories]);
 
-  // Kategori silme işlemi için bir işlev
-  const deleteCategory = (categoryId) => {
-    remove(child(categoriesRef, categoryId));
-  };
+  useEffect(() => {
+    if (selectedCategory && selectedSubcategory) {
+      const videosRef = ref(
+        database,
+        `categories/${selectedCategory}/subcategories/${selectedSubcategory}/videos`
+      );
 
-  // Alt kategori ekleme işlemi için bir işlev
-  const addSubcategory = (newSubcategory, categoryId, newSubCategoryUrl) => {
-    push(subcategoriesRef, {
-      name: newSubcategory,
-      categoryId,
-      url: newSubCategoryUrl,
+      onValue(videosRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          const videoList = [];
+          Object.keys(data).forEach((videoId) => {
+            const video = data[videoId];
+            video.id = videoId;
+            videoList.push(video);
+          });
+          setVideos(videoList);
+          setAllVideos(videoList); // Tüm videoları güncelle
+        }
+      });
+
+      return () => {
+        off(videosRef);
+      };
+    }
+  }, [selectedCategory, selectedSubcategory, setAllVideos, setVideos]);
+
+  useEffect(() => {
+    if (selectedSubcategory) {
+      const subcategoryVideosRef = ref(
+        database,
+        `categories/${selectedCategory}/subcategories/${selectedSubcategory}/videos`
+      );
+
+      onValue(subcategoryVideosRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          const videoList = [];
+          Object.keys(data).forEach((videoId) => {
+            const video = data[videoId];
+            video.id = videoId;
+            videoList.push(video);
+          });
+          setSubcategoryVideos(videoList);
+        }
+      });
+
+      return () => {
+        off(subcategoryVideosRef);
+      };
+    }
+  }, [selectedCategory, selectedSubcategory, setSubcategoryVideos]);
+
+  useEffect(() => {
+    const allVideosRef = ref(database, "allVideos");
+
+    onValue(allVideosRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const allVideoList = [];
+        Object.keys(data).forEach((videoId) => {
+          const video = data[videoId];
+          if (video) {
+            video.id = videoId;
+
+            // Eğer video içinde subCategoryId varsa, subCategories alanına ekliyoruz
+            if (video.subCategoryId) {
+              video.subCategories.push(video.subCategoryId);
+            }
+
+            // Eğer subCategories henüz tanımlanmamışsa, boş bir dizi olarak başlat
+            if (!video.subCategories) {
+              video.subCategories = [];
+            }
+
+            allVideoList.push(video);
+          }
+        });
+        setAllVideos(allVideoList);
+      }
     });
-  };
 
-  // Alt kategori silme işlemi için bir işlev
-  const deleteSubcategory = (subcategoryId) => {
-    remove(child(subcategoriesRef, subcategoryId));
-  };
+    return () => {
+      off(allVideosRef);
+    };
+  }, [selectedCategory, selectedSubcategory, setVideos]);
 
-  // Kategori seçme işlemi için bir işlev
-  const handleSelectCategory = (categoryId) => {
-    setSelectedCategory(categoryId);
-    setSelectedSubCategory("");
-  };
+  function addCategory(categoryName, imageUrl, subcategories) {
+    const categoryRef = ref(database, "categories");
+    const newCategoryRef = push(categoryRef);
 
-  // Alt kategori seçme işlemi için bir işlev
-  const handleSelectSubCategory = (subcategoryId) => {
-    setSelectedSubCategory(subcategoryId);
-  };
-  // Kategori düzenleme işlemi için bir işlev
-  // Kategori düzenleme işlemi için bir işlev
-  const editCategory = (categoryId, newName) => {
-    const categoryRef = child(categoriesRef, categoryId);
-    set(categoryRef, { name: newName });
-  };
+    set(newCategoryRef, {
+      name: categoryName,
+      img_url: imageUrl,
+      subcategories: subcategories,
+    });
+  }
 
-  // Alt kategori düzenleme işlemi için bir işlev
-  const editSubcategory = (subcategoryId, newName) => {
-    const subcategoryRef = child(subcategoriesRef, subcategoryId);
-    set(subcategoryRef, { name: newName });
-  };
+  function addSubcategory(categoryId, subcategoryName, imageUrl) {
+    const subcategoryRef = ref(
+      database,
+      `categories/${categoryId}/subcategories`
+    );
+    const newSubcategoryRef = push(subcategoryRef);
 
-  // Video ekleme işlemi için bir işlev
-  const addVideo = (
+    set(newSubcategoryRef, {
+      name: subcategoryName,
+      img_url: imageUrl,
+    });
+  }
+
+  function addVideo(
+    categoryId,
+    subcategoryId,
     title,
     description,
-    url,
     imgUrl,
-    categoryId,
-    subcategoryId
-  ) => {
-    push(videosRef, {
-      title,
-      description,
-      url,
-      imgUrl,
-      categoryId,
-      subcategoryId,
+    frameUrl,
+    likes,
+    comments
+  ) {
+    const videoRef = ref(
+      database,
+      `categories/${categoryId}/subcategories/${subcategoryId}/videos`
+    );
+    const newVideoRef = push(videoRef);
+
+    set(newVideoRef, {
+      subcategoryId: subcategoryId,
+      title: title,
+      description: description,
+      img_url: imgUrl,
+      frame_url: frameUrl,
+      likes: 0,
+      comments: [],
     });
-  };
+
+    const newVideoId = newVideoRef.key;
+    set(ref(database, `allVideos/${newVideoId}`), {
+      subcategoryId: subcategoryId,
+      title: title,
+      description: description,
+      img_url: imgUrl,
+      frame_url: frameUrl,
+      likes: 0,
+      comments: [],
+    });
+  }
+
+  function handleDeleteCategory(categoryId) {
+    const categoryRef = ref(database, `categories/${categoryId}`);
+    remove(categoryRef)
+      .then(() => {
+        setCategories((prevCategories) =>
+          prevCategories.filter((category) => category.id !== categoryId)
+        );
+      })
+      .catch((error) => {
+        console.error("Kategori silinirken bir hata oluştu: ", error);
+      });
+  }
+
+  function handleDeleteSubcategory(categoryId, subcategoryId) {
+    const subcategoryRef = ref(
+      database,
+      `categories/${categoryId}/subcategories/${subcategoryId}`
+    );
+    remove(subcategoryRef)
+      .then(() => {
+        setCategories((prevCategories) =>
+          prevCategories.map((category) => {
+            if (category.id === categoryId) {
+              const subcategories = { ...category.subcategories };
+              delete subcategories[subcategoryId];
+              return { ...category, subcategories };
+            }
+            return category;
+          })
+        );
+      })
+      .catch((error) => {
+        console.error("Alt kategori silinirken bir hata oluştu: ", error);
+      });
+  }
+
+  function handleAddCategory() {
+    if (!newCategoryName || newCategoryName.trim() === "") {
+      return;
+    }
+
+    if (!selectedCategory || selectedCategory === "") {
+      addCategory(newCategoryName, newCategoryImageUrl, {});
+      setSelectedCategory("some-unique-identifier");
+    } else {
+      if (!selectedParentCategory || selectedParentCategory === "") {
+        console.log("Bir ana kategori seçmelisiniz.");
+        return;
+      }
+    }
+
+    setNewCategoryName("");
+    setNewCategoryImageUrl("");
+  }
+
+  function handleAddSubcategory() {
+    if (!newSubcategoryName || newSubcategoryName.trim() === "") {
+      return;
+    }
+
+    if (!selectedParentCategory || selectedParentCategory === "") {
+      console.log("Bir ana kategori seçmelisiniz.");
+      return;
+    }
+
+    addSubcategory(
+      selectedParentCategory,
+      newSubcategoryName,
+      newSubcategoryImageUrl
+    );
+
+    setNewSubcategoryName("");
+    setNewSubcategoryImageUrl("");
+  }
+
+  function handleAddVideo() {
+    if (
+      !selectedCategory ||
+      selectedCategory === "" ||
+      !selectedSubcategory ||
+      selectedSubcategory === "" ||
+      !newVideoTitle ||
+      newVideoTitle.trim() === "" ||
+      !newVideoDescription ||
+      newVideoDescription.trim() === "" ||
+      !newVideoImgUrl ||
+      newVideoImgUrl.trim() === "" ||
+      !newVideoFrameUrl ||
+      newVideoFrameUrl.trim() === ""
+    ) {
+      return;
+    }
+
+    addVideo(
+      selectedCategory,
+      selectedSubcategory,
+      newVideoTitle,
+      newVideoDescription,
+      newVideoImgUrl,
+      newVideoFrameUrl
+    );
+
+    setNewVideoTitle("");
+    setNewVideoDescription("");
+    setNewVideoImgUrl("");
+    setNewVideoFrameUrl("");
+  }
 
   return (
     <VideoContext.Provider
       value={{
-        categories,
-        subcategories,
-        videos,
-        addCategory,
-        deleteCategory,
-        addSubcategory,
-        deleteSubcategory,
-        addVideo,
+        newCategoryName,
+        setNewCategoryName,
+        newCategoryImageUrl,
+        setNewCategoryImageUrl,
         selectedCategory,
-        setSelectedCategory, // Bu değerin doğru şekilde iletilmesi gerekiyor
-        selectedSubCategory,
-        handleSelectCategory,
-        handleSelectSubCategory,
-        setSelectedSubCategory,
-        editCategory,
-        editSubcategory,
+        setSelectedCategory,
+        newSubcategoryName,
+        setNewSubcategoryName,
+        newSubcategoryImageUrl,
+        setNewSubcategoryImageUrl,
+        selectedParentCategory,
+        setSelectedParentCategory,
+        newVideoTitle,
+        setNewVideoTitle,
+        newVideoDescription,
+        setNewVideoDescription,
+        newVideoImgUrl,
+        setNewVideoImgUrl,
+        newVideoFrameUrl,
+        setNewVideoFrameUrl,
+        selectedSubcategory,
+        setSelectedSubcategory,
+        categories,
+        setCategories,
+        videos,
+        setVideos,
+        selectedCategoryData,
+        selectedSubcategoryData,
+        subcategoryVideos,
+        allVideos, // Tüm videoları ekledik
+        addCategory,
+        addSubcategory,
+        addVideo,
+        handleAddCategory,
+        handleAddSubcategory,
+        handleDeleteSubcategory,
+        handleAddVideo,
+        handleDeleteCategory,
       }}
     >
       {children}
     </VideoContext.Provider>
   );
-};
+}
 
-// VideoContext'i kullanmak için özelleştirilmiş bir hook oluşturun
-export const useVideo = () => {
-  const context = useContext(VideoContext);
-  if (!context) {
-    throw new Error("useVideoContext must be used within a VideoProvider");
-  }
-  return context;
-};
+export function useVideo() {
+  return useContext(VideoContext);
+}
