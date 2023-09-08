@@ -10,7 +10,7 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { FcGoogle } from "react-icons/fc";
-import { useAuth } from "../context/AuthContext";
+import { useAuthContext } from "../context/AuthContext";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import Visibility from "@mui/icons-material/Visibility";
@@ -21,7 +21,7 @@ const defaultTheme = createTheme();
 export default function Register() {
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
-  const { signup, loginWithGoogle } = useAuth();
+  const { signUpProvider, createUser } = useAuthContext();
   const [formData, setFormData] = React.useState({
     firstName: "",
     lastName: "",
@@ -127,7 +127,7 @@ export default function Register() {
     // Other form submission code
     try {
       const displayName = `${formData.firstName} ${formData.lastName}`;
-      await signup(formData.email, formData.password, displayName);
+      await createUser(formData.email, formData.password, displayName);
     } catch (error) {
       console.log("Signup error:", error);
     }
@@ -267,7 +267,7 @@ export default function Register() {
                   fullWidth
                   startIcon={<FcGoogle />}
                   sx={{ textTransform: "capitalize" }}
-                  onClick={() => loginWithGoogle()}
+                  onClick={() => signUpProvider()}
                 >
                   Google ile kayıt yap
                 </Button>

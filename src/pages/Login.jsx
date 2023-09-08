@@ -10,7 +10,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { useAuth } from "../context/AuthContext";
+import { useAuthContext } from "../context/AuthContext";
 import { FcGoogle } from "react-icons/fc";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
@@ -20,7 +20,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 const defaultTheme = createTheme();
 
 export default function Login() {
-  const { login, loginWithGoogle, forgetPassword } = useAuth();
+  const { signIn, signUpProvider, forgetPassword } = useAuthContext();
 
   const [formData, setFormData] = React.useState({
     email: "",
@@ -49,7 +49,7 @@ export default function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const { email, password } = formData;
-    login(email, password);
+    signIn(email, password);
   };
 
   const validateEmail = (email) => {
@@ -179,7 +179,7 @@ export default function Login() {
                 variant="outlined"
                 fullWidth
                 startIcon={<FcGoogle />}
-                onClick={() => loginWithGoogle()}
+                onClick={() => signUpProvider()}
                 sx={{
                   textTransform: "capitalize",
                 }}

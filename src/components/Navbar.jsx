@@ -16,7 +16,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import MyLogo from "../assets/logo.png";
 
 import { Grid, Link } from "@mui/material";
-import { useAuth } from "../context/AuthContext";
+import { useAuthContext } from "../context/AuthContext";
 
 const pages = [
   { title: "Ana Sayfa", icon: "", url: "/" },
@@ -34,7 +34,7 @@ function NavBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
-  const { isAdmin, currentUser, logout } = useAuth();
+  const { currentUser, logOut } = useAuthContext();
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -239,7 +239,7 @@ function NavBar() {
                         Beğenilerim
                       </Typography>
                     </MenuItem>,
-                    <MenuItem key="logout" onClick={() => logout()}>
+                    <MenuItem key="logout" onClick={() => logOut()}>
                       <Typography sx={{ textAlign: "center" }}>
                         Çıkış
                       </Typography>
@@ -272,22 +272,21 @@ function NavBar() {
                       </Typography>
                     </MenuItem>,
                   ]}
-              {isAdmin && (
-                <MenuItem
-                  key="admin-panel"
-                  onClick={() => navigate("/admin-panel")}
+
+              <MenuItem
+                key="admin-panel"
+                onClick={() => navigate("/admin-panel")}
+              >
+                <Typography
+                  sx={{
+                    textAlign: "center",
+                    textDecoration:
+                      location.pathname === "/admin-panel" && "underline",
+                  }}
                 >
-                  <Typography
-                    sx={{
-                      textAlign: "center",
-                      textDecoration:
-                        location.pathname === "/admin-panel" && "underline",
-                    }}
-                  >
-                    Yönetici Paneli
-                  </Typography>
-                </MenuItem>
-              )}
+                  Yönetici Paneli
+                </Typography>
+              </MenuItem>
             </Menu>
           </Box>
         </Toolbar>
